@@ -3,7 +3,7 @@ package com.dx168.patchsdk;
 /**
  * Created by jianjun.lin on 2016/10/26.
  */
-public interface Listener {
+public interface PatchListener {
 
     void onQuerySuccess(String response);
 
@@ -13,12 +13,9 @@ public interface Listener {
 
     void onDownloadFailure(Throwable e);
 
-    void onPatchSuccess();
+    void onApplySuccess();
 
-    void onPatchFailure();
+    void onApplyFailure(String msg);
 
-    void onLoadSuccess();
-
-    void onLoadFailure();
-
+    void onCompleted();
 }

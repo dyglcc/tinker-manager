@@ -18,13 +18,8 @@
         </activity>
 
         <service
-            android:name=".tinker.SampleResultService"
+            android:name=".tinker.TinkerResultService"
             android:exported="false"/>
-
-        <service
-            android:name=".tinker.SamplePatchService"
-            android:exported="false"
-            android:process=":patch"/>
 
     </application>
 

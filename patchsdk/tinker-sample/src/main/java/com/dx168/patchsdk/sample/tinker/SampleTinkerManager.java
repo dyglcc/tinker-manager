@@ -18,6 +18,7 @@ package com.dx168.patchsdk.sample.tinker;
 
 import com.tencent.tinker.lib.listener.PatchListener;
 import com.tencent.tinker.lib.patch.AbstractPatch;
+import com.tencent.tinker.lib.patch.UpgradePatch;
 import com.tencent.tinker.lib.reporter.LoadReporter;
 import com.tencent.tinker.lib.reporter.PatchReporter;
 import com.tencent.tinker.lib.tinker.TinkerInstaller;
@@ -59,7 +60,7 @@ public class SampleTinkerManager {
      */
     public static void sampleInstallTinker(ApplicationLike appLike) {
         if (isInstalled) {
-            TinkerLog.w(TAG, "install com.dx168.patchsdk.sample, but has installed, ignore");
+            TinkerLog.w(TAG, "install com.dx168.patchsdk.com.dx168.patchsdk.sample.tinker, but has installed, ignore");
             return;
         }
         TinkerInstaller.install(appLike);
@@ -69,13 +70,13 @@ public class SampleTinkerManager {
 
     /**
      * you can specify all class you want.
-     * sometimes, you can only install com.dx168.patchsdk.sample in some process you want!
+     * sometimes, you can only install com.dx168.patchsdk.com.dx168.patchsdk.sample.tinker in some process you want!
      *
      * @param appLike
      */
     public static void installTinker(ApplicationLike appLike) {
         if (isInstalled) {
-            TinkerLog.w(TAG, "install com.dx168.patchsdk.sample, but has installed, ignore");
+            TinkerLog.w(TAG, "install com.dx168.patchsdk.com.dx168.patchsdk.sample.tinker, but has installed, ignore");
             return;
         }
         //or you can just use DefaultLoadReporter
@@ -85,9 +86,9 @@ public class SampleTinkerManager {
         //or you can just use DefaultPatchListener
         PatchListener patchListener = new SamplePatchListener(appLike.getApplication());
         //you can set your own upgrade patch if you need
-        AbstractPatch upgradePatchProcessor = new SampleUpgradePatch();
+        AbstractPatch upgradePatchProcessor = new UpgradePatch();
 
-        TinkerInstaller.install(appLike, loadReporter, patchReporter, patchListener, SampleResultService.class,
+        TinkerInstaller.install(appLike, loadReporter, patchReporter, patchListener, TinkerResultService.class,
                 upgradePatchProcessor);
 
         isInstalled = true;

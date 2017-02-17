@@ -4,8 +4,7 @@ package com.dx168.patchsdk;
  * Created by jianjun.lin on 2016/12/2.
  */
 
-public class SimpleListener implements Listener {
-
+public class SimplePatchListener implements PatchListener {
     @Override
     public void onQuerySuccess(String response) {
 
@@ -27,23 +26,17 @@ public class SimpleListener implements Listener {
     }
 
     @Override
-    public void onPatchSuccess() {
+    public void onApplySuccess() {
 
     }
 
     @Override
-    public void onPatchFailure() {
+    public void onApplyFailure(String msg) {
 
     }
 
     @Override
-    public void onLoadSuccess() {
+    public void onCompleted() {
 
     }
-
-    @Override
-    public void onLoadFailure() {
-
-    }
-
 }

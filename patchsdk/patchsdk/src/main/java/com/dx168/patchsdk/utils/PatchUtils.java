@@ -17,19 +17,14 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Enumeration;
 import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-
-import static com.dx168.patchsdk.PatchManager.FULL_PATCH_NAME;
 
 /**
  * Created by jianjun.lin on 2016/10/27.
  */
 public class PatchUtils {
 
-    private static final String TAG = "patchsdk.PatchUtils";
+    private static final String TAG = PatchUtils.class.getSimpleName();
     private static String processName = null;
 
     public static String getDeviceId(Context context) {
@@ -72,34 +67,6 @@ public class PatchUtils {
                     e.printStackTrace();
                 }
             }
-        }
-    }
-
-    public static String release(String patchPath) {
-        try {
-            ZipFile zipFile = new ZipFile(patchPath);
-            boolean isFullPatch = zipFile.getEntry("FULL_PATCH") != null;
-            if (!isFullPatch) {
-                return patchPath;
-            }
-            String dir = patchPath.substring(0, patchPath.length() - 4);
-            patchPath = dir + "/" + FULL_PATCH_NAME;
-            if (new File(dir).exists()) {
-                return patchPath;
-            }
-            Enumeration<ZipEntry> entries = (Enumeration<ZipEntry>) zipFile.entries();
-            while (entries.hasMoreElements()) {
-                ZipEntry zipEntry = entries.nextElement();
-                String name = zipEntry.getName();
-                if (name.startsWith("classes") && name.endsWith(".dex")) {
-                    FileUtils.copyFile(zipFile.getInputStream(zipEntry), dir + "/dex/" + name);
-                }
-            }
-            FileUtils.copyFile(zipFile.getInputStream(zipFile.getEntry(FULL_PATCH_NAME)), patchPath);
-            return patchPath;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return patchPath;
         }
     }
 
@@ -182,7 +149,7 @@ public class PatchUtils {
         return "";
     }
 
-    public static PatchInfo toPatchInfo(String string) {
+    public static PatchInfo convertJsonToPatchInfo(String string) {
         try {
             JSONObject jsonObject = new JSONObject(string);
             PatchInfo patchInfo = new PatchInfo();
@@ -215,10 +182,6 @@ public class PatchUtils {
             }
         }
         return false;
-    }
-
-    public static boolean isDebugPatch(String path) {
-        return path.contains("/com.dx168.patchtool/");
     }
 
 }
