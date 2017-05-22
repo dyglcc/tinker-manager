@@ -14,13 +14,12 @@ repositories {
 
 dependencies {
     ...
-    compile 'com.dx168.patchsdk:patchsdk:1.1.0'
+    compile 'com.dx168.patchsdk:patchsdk:1.1.3'
 }
 ````
 
 - 2. ApplicationLike
 
-继承 TinkerApplicationLike
 ````
 @SuppressWarnings("unused")
 @DefaultLifeCycle(application = "com.dx168.patchsdk.sample.MyApplication",
@@ -60,6 +59,46 @@ public class MyApplicationLike extends TinkerApplicationLike {
         originalApplication.onCreate();
     }
 }
+````
+- 3. 通知结果
+
+LoadReporter
+````
+@Override
+public void onLoadResult(File patchDirectory, int loadCode, long cost) {
+    super.onLoadResult(patchDirectory, loadCode, cost);
+    switch (loadCode) {
+        case ShareConstants.ERROR_LOAD_OK:
+            PatchManager.getInstance().onLoadSuccess();
+            ...
+            break;
+        default:
+            PatchManager.getInstance().onLoadFailure();
+            break;
+    }
+    ...
+}
+
+````
+TinkerResultService
+````
+@Override
+public void onPatchResult(final PatchResult result) {
+    ...
+    if (result.isSuccess) {
+        PatchManager.getInstance().onPatchSuccess(result.rawPatchFilePath);
+    } else {
+        PatchManager.getInstance().onPatchFailure(result.rawPatchFilePath);
+    }
+    ...
+}
+````
+
+- 4. 记得注册TinkerResultService
+````
+<service
+    android:name=".tinker.SampleResultService"
+    android:exported="false"/>
 
 ````
 

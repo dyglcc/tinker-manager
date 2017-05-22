@@ -96,20 +96,4 @@ public class PatchInfoDto {
     public void setUid(String uid) {
         this.uid = uid;
     }
-
-    public String getHashJiagu() {
-        return hashJiagu;
-    }
-
-    public void setHashJiagu(String hashJiagu) {
-        this.hashJiagu = hashJiagu;
-    }
-
-    public String getDownloadUrlJiagu() {
-        return downloadUrlJiagu;
-    }
-
-    public void setDownloadUrlJiagu(String downloadUrlJiagu) {
-        this.downloadUrlJiagu = downloadUrlJiagu;
-    }
 }
