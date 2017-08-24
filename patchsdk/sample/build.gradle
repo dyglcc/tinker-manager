@@ -6,7 +6,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.2'
+        classpath 'com.android.tools.build:gradle:2.3.2'
         classpath('com.tencent.tinker:tinker-patch-gradle-plugin:1.7.7')
     }
 }
@@ -35,8 +35,8 @@ def gitSha() {
 def javaVersion = JavaVersion.VERSION_1_7
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    compileSdkVersion Integer.parseInt(project.ANDROID_BUILD_SDK_VERSION)
+    buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
 
     compileOptions {
         sourceCompatibility javaVersion
@@ -67,9 +67,10 @@ android {
     }
 
     defaultConfig {
+        minSdkVersion Integer.parseInt(project.ANDROID_BUILD_MIN_SDK_VERSION)
+        targetSdkVersion Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
+
         applicationId "com.dx168.patchsdk.sample"
-        minSdkVersion 15
-        targetSdkVersion 22
         versionCode 1
         versionName "1.0.0"
         /**

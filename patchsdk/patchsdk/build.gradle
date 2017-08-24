@@ -12,7 +12,6 @@ def repoUsername = properties.getProperty("repoUsername")
 def repoPassword = properties.getProperty("repoPassword")
 
 android {
-
     compileSdkVersion Integer.parseInt(project.ANDROID_BUILD_SDK_VERSION)
     buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
 
@@ -36,11 +35,12 @@ android {
             buildConfigField "String", "SDK_VERSION", "\"${version}\""
         }
     }
+    buildToolsVersion '25.0.0'
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:support-v4:24.0.0'
+    provided 'com.android.support:support-v4:24.0.0'
 }
 
 def mavenDesc = 'Tinker patch manager'

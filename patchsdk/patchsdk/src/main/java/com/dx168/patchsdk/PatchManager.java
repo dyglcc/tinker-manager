@@ -39,6 +39,9 @@ public final class PatchManager {
 
     public static final String JIAGU_PATCH_NAME = "patch.apk";
 
+    private static final int SUCCESS_REPORTED = 1;
+    private static final int FAILURE_REPORTED = 2;
+
     private static final String DEBUG_ACTION_PATCH_RESULT = "com.dx168.patchtool.PATCH_RESULT";
     private static final String DEBUG_ACTION_LOAD_RESULT = "com.dx168.patchtool.LOAD_RESULT";
     private static final String KEY_PACKAGE_NAME = "package_name";
@@ -68,9 +71,10 @@ public final class PatchManager {
     private String versionDirPath;
     private AppInfo appInfo;
     private IPatchManager actualManager;
+    private FullUpdateHandler fullUpdateHandler = new FullUpdateHandler();
 
     public void init(Context context, String baseUrl, String appId, String appSecret, IPatchManager actualManager) {
-        this.context = context;
+        this.context = context.getApplicationContext();
         this.actualManager = actualManager;
         if (!PatchUtils.isMainProcess(context)) {
             return;
@@ -117,6 +121,10 @@ public final class PatchManager {
             }
             editor.commit();
         }
+    }
+
+    public void setFullUpdateHandler(FullUpdateHandler fullUpdateHandler) {
+        this.fullUpdateHandler = fullUpdateHandler;
     }
 
     public void register(Listener listener) {
@@ -186,7 +194,7 @@ public final class PatchManager {
                 .queryPatch(appInfo.getAppId(), appInfo.getToken(), appInfo.getTag(),
                         appInfo.getVersionName(), appInfo.getVersionCode(), appInfo.getPlatform(),
                         appInfo.getOsVersion(), appInfo.getModel(), appInfo.getChannel(),
-                        appInfo.getSdkVersion(), appInfo.getDeviceId(), new PatchServer.PatchServerCallback() {
+                        appInfo.getSdkVersion(), appInfo.getDeviceId(),true, new PatchServer.PatchServerCallback() {
                             @Override
                             public void onSuccess(int code, byte[] bytes) {
                                 if (bytes == null) {
@@ -215,6 +223,9 @@ public final class PatchManager {
                                 }
                                 for (Listener listener : listeners) {
                                     listener.onQuerySuccess(patchInfo.toString());
+                                }
+                                if (fullUpdateHandler != null && patchInfo.getFullUpdateInfo() != null) {
+                                    fullUpdateHandler.handlerFullUpdate(context,patchInfo.getFullUpdateInfo());
                                 }
                                 if (patchInfo.getData() == null) {
                                     File versionDir = new File(versionDirPath);
@@ -371,6 +382,10 @@ public final class PatchManager {
      * @param patchPath
      */
     public void onPatchSuccess(String patchPath) {
+        onPatchSuccess(context, patchPath);
+    }
+
+    public void onPatchSuccess(Context context, String patchPath) {
         SPUtils.put(context, KEY_STAGE, STAGE_IDLE);
         if (patchPath.endsWith("/" + JIAGU_PATCH_NAME)) {
             patchPath = patchPath.substring(0, patchPath.lastIndexOf("/")) + ".apk";
@@ -387,12 +402,7 @@ public final class PatchManager {
         }
     }
 
-    /**
-     * 补丁合成失败
-     *
-     * @param patchPath
-     */
-    public void onPatchFailure(String patchPath) {
+    public void onPatchFailure(Context context, String patchPath) {
         SPUtils.put(context, KEY_STAGE, STAGE_IDLE);
         if (patchPath.endsWith("/" + JIAGU_PATCH_NAME)) {
             patchPath = patchPath.substring(0, patchPath.lastIndexOf("/")) + ".apk";
@@ -408,6 +418,15 @@ public final class PatchManager {
         for (Listener listener : listeners) {
             listener.onPatchFailure();
         }
+    }
+
+    /**
+     * 补丁合成失败
+     *
+     * @param patchPath
+     */
+    public void onPatchFailure(String patchPath) {
+        onPatchFailure(context, patchPath);
     }
 
     private Queue<Runnable> loadResultQueue = new LinkedList<>();
@@ -494,9 +513,6 @@ public final class PatchManager {
             report(patchPath, false);
         }
     }
-
-    private static final int SUCCESS_REPORTED = 1;
-    private static final int FAILURE_REPORTED = 2;
 
     private void report(String patchPath, final boolean result) {
         final String patchName = appInfo.getVersionName() + "_" + patchPath;
