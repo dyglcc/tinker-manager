@@ -80,7 +80,7 @@ public class PatchService {
             }
             multipartFile.transferTo(patchFile);
 
-            zipFile.close();
+//            zipFile.close();
             patchInfo.setUserId(appInfo.getUserId());
             patchInfo.setAppUid(appInfo.getUid());
             patchInfo.setUid(UUID.randomUUID().toString().replaceAll("-", ""));
