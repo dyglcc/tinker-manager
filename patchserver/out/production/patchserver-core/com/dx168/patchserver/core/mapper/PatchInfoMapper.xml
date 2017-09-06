@@ -21,24 +21,24 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.dx168.patchserver.core.mapper.PatchInfoMapper">
-    <resultMap id="BaseResultMap" type="com.dx168.patchserver.core.domain.PatchInfo">
-        <id column="id" property="id" jdbcType="INTEGER"/>
-        <result column="user_id" property="userId" jdbcType="INTEGER"/>
-        <result column="app_uid" property="appUid"/>
-        <result column="version_name" property="versionName"/>
-        <result column="patch_version" property="patchVersion"/>
-        <result column="publish_version" property="publishVersion"/>
-        <result column="publish_type" property="publishType"/>
-        <result column="storage_path" property="storagePath"/>
-        <result column="patch_size" property="patchSize"/>
-        <result column="patch_size_jiagu" property="patchSizeJiagu"/>
-        <result column="file_hash" property="fileHash"/>
-        <result column="file_hash_jiagu" property="fileHashJiagu"/>
-        <result column="download_url" property="downloadUrl"/>
-        <result column="apply_success_size" property="applySuccessSize"/>
-        <result column="apply_size" property="applySize"/>
-        <result column="created_at" property="createdAt"/>
-        <result column="updated_at" property="updatedAt"/>
+    <resultMap id="BaseResultMap" type="com.dx168.patchserver.core.domain.PatchInfo" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="user_id" property="userId" jdbcType="INTEGER" />
+        <result column="app_uid" property="appUid" />
+        <result column="version_name" property="versionName" />
+        <result column="patch_version" property="patchVersion" />
+        <result column="publish_version" property="publishVersion" />
+        <result column="publish_type" property="publishType" />
+        <result column="storage_path" property="storagePath" />
+        <result column="patch_size" property="patchSize" />
+        <result column="patch_size_jiagu" property="patchSizeJiagu" />
+        <result column="file_hash" property="fileHash" />
+        <result column="file_hash_jiagu" property="fileHashJiagu" />
+        <result column="download_url" property="downloadUrl" />
+        <result column="apply_success_size" property="applySuccessSize" />
+        <result column="apply_size" property="applySize" />
+        <result column="created_at" property="createdAt" />
+        <result column="updated_at" property="updatedAt" />
     </resultMap>
 
     <insert id="insert" parameterType="com.dx168.patchserver.core.domain.PatchInfo">
@@ -46,9 +46,7 @@
             SELECT LAST_INSERT_ID() AS id
         </selectKey>
         insert into t_patch_info (
-        user_id, app_uid,uid,
-        version_name,patch_version,publish_version,status,publish_type,tags,storage_path,patch_size,patch_size_jiagu,file_hash,file_hash_jiagu,description,download_url,apply_success_size,apply_size,
-        created_at, updated_at
+         user_id, app_uid,uid, version_name,patch_version,publish_version,status,publish_type,tags,storage_path,patch_size,file_hash,description,download_url,apply_success_size,apply_size, created_at, updated_at
         )
         values (
         #{userId,jdbcType=INTEGER},
@@ -75,39 +73,31 @@
     </insert>
 
     <select id="findByUidAndVersionName" resultMap="BaseResultMap">
-        SELECT id,user_id, app_uid,uid,
-        version_name,patch_version,publish_version,status,publish_type,tags,storage_path,patch_size,file_hash,description,download_url,apply_success_size,apply_size,
-        created_at, updated_at
+        SELECT id,user_id, app_uid,uid, version_name,patch_version,publish_version,status,publish_type,tags,storage_path,patch_size,file_hash,description,download_url,apply_success_size,apply_size, created_at, updated_at
         FROM t_patch_info
         where app_uid = #{appUid} and version_name = #{versionName}
     </select>
 
     <select id="findById" resultMap="BaseResultMap">
-        SELECT id,user_id, app_uid,uid,
-        version_name,patch_version,publish_version,status,publish_type,tags,storage_path,patch_size,file_hash,description,download_url,apply_success_size,apply_size,
-        created_at, updated_at
+        SELECT id,user_id, app_uid,uid, version_name,patch_version,publish_version,status,publish_type,tags,storage_path,patch_size,file_hash,description,download_url,apply_success_size,apply_size, created_at, updated_at
         FROM t_patch_info
         where id = #{id}
     </select>
 
     <select id="findByUid" resultMap="BaseResultMap">
-        SELECT id,user_id, app_uid,uid,
-        version_name,patch_version,publish_version,status,publish_type,tags,storage_path,patch_size,file_hash,description,download_url,apply_success_size,apply_size,
-        created_at, updated_at
+        SELECT id,user_id, app_uid,uid, version_name,patch_version,publish_version,status,publish_type,tags,storage_path,patch_size,file_hash,description,download_url,apply_success_size,apply_size, created_at, updated_at
         FROM t_patch_info
         where uid = #{uid}
     </select>
 
     <select id="findByIdAndAppUid" resultMap="BaseResultMap">
-        SELECT id,user_id, app_uid,uid,
-        version_name,patch_version,publish_version,status,publish_type,tags,storage_path,patch_size,file_hash,description,download_url,apply_success_size,apply_size,
-        created_at, updated_at
+        SELECT id,user_id, app_uid,uid, version_name,patch_version,publish_version,status,publish_type,tags,storage_path,patch_size,file_hash,description,download_url,apply_success_size,apply_size, created_at, updated_at
         FROM t_patch_info
         where id = #{id} and app_uid = #{appUid}
     </select>
 
-    <update id="updateStatus" parameterType="com.dx168.patchserver.core.domain.PatchInfo">
-        UPDATE t_patch_info
+    <update id="updateStatus" parameterType="com.dx168.patchserver.core.domain.PatchInfo" >
+        UPDATE  t_patch_info
         SET status = #{status,jdbcType=VARCHAR}, publish_type = #{publishType,jdbcType=VARCHAR}
         <if test="updatedAt != null">
             ,updated_at = #{updatedAt,jdbcType=TIMESTAMP}
@@ -121,7 +111,7 @@
     </update>
 
     <update id="updateCount">
-        UPDATE t_patch_info
+        UPDATE  t_patch_info
         SET apply_success_size = #{applySuccessSize,jdbcType=VARCHAR}, apply_size = #{applySize,jdbcType=VARCHAR}
         <if test="updatedAt != null">
             ,updated_at = #{updatedAt,jdbcType=TIMESTAMP}
@@ -131,7 +121,7 @@
         id = #{id,jdbcType=INTEGER}
     </update>
 
-    <delete id="deleteById">
+    <delete id="deleteById" >
         DELETE FROM t_patch_info where id = #{id}
     </delete>
 </mapper>

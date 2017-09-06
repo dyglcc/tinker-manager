@@ -64,7 +64,7 @@
 
         #if($!restR.data.openRegist)
                 <p class="text-center" style="margin-top: 20px"><a
-                        href="#springUrl('')/regist?redirect=$restR.data.redirect">注册sdfaksdfasdflasdlfslkdf</a></p>
+                        href="#springUrl('')/regist?redirect=$restR.data.redirect">注册</a></p>
         #end
 
     </form>

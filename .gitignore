@@ -1,9 +1,6 @@
 
 ### Eclipse template
 *.pydevproject
-patchserver-manager/out
-patchserver-facade/out
-patchserver-core/out
 .metadata
 .gradle*
 classes/
