@@ -5,9 +5,11 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
 
-    <title>补丁管理后台-登录</title>
-
+    <title>补丁管理后台-注册</title>
     <link rel="icon" href="#springUrl('/static/img/favicon.ico')">
 
     <!-- Bootstrap core CSS -->
@@ -45,28 +47,18 @@
 ##    </div>>
 
 <div class="container">
-    <form class="form-signin" action="#springUrl('/login')" method="post">
-        <h3 class="sign-up-title" style="color:dimgray; text-align: center">补丁管理后台</h3>
+    <form class="form-signin" action="#springUrl('/regist')" method="post">
+        <h3 class="sign-up-title" style="color:dimgray; text-align: center">Welcome back! Please sign up</h3>
         <label for="username" class="sr-only">用户名</label>
-        <input type="username" id="username" class="form-control" placeholder="用户名" required="" autofocus=""
-               name="username" minlength="5" value="$!restR.data.loginname">
+        <input type="username" id="username" class="form-control" placeholder="用户名" required="" autofocus="" name="username" minlength="5">
         <label for="inputPassword" class="sr-only">密码</label>
-        <input type="password" id="inputPassword" class="form-control" placeholder="密码" required="" name="password"
-               minlength="5" value="$!restR.data.loginpwd">
-        <div class="checkbox">
-            <label>
-                <input type="checkbox" name="rememberPwd" checked="true"> 记住密码
-            </label>
-        </div>
+        <input type="password" id="inputPassword" class="form-control" placeholder="密码" required="" name="password" minlength="5">
+
         <input name="redirect" type="hidden" value="$restR.data.redirect">
         <div ng-show="errormag.length>0" style="line-height: 30px">$!restR.message</div>
-        <button class="btn btn-lg btn-primary btn-block" type="submit">登录</button>
+        <button class="btn btn-lg btn-primary btn-block" type="submit">注册</button>
 
-        #if($!restR.data.openRegist)
-                <p class="text-center" style="margin-top: 20px"><a
-                        href="#springUrl('')/regist?redirect=$restR.data.redirect">注册sdfaksdfasdflasdlfslkdf</a></p>
-        #end
-
+        <p class="text-center" style="margin-top: 20px"><a href="#springUrl('')/login?redirect=$restR.data.redirect">回到登录</a></p>
     </form>
 
 </div>
