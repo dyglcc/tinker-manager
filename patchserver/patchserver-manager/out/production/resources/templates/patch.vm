@@ -154,7 +154,7 @@
 
             #if($!restR.data.patchInfo.status == 0)
 
-                <div id="gray_publish_container">
+                <div id="gray_publish_container" hidden>
 
                     请输入用于灰度发布的tag(如果有多个tag用;分隔)
                     <input type="text" id="gray_tags" style="width:900px" value="$!restR.data.tags" />
