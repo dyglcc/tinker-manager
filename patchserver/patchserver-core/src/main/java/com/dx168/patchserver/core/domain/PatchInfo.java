@@ -38,6 +38,7 @@ public class PatchInfo {
     private int status;//0 未发布 1 已发布 2已停止
     private int publishType;//0 灰度发布 1 正常发布
     private String tags;//灰度发布的tag用，分割
+    private int publishForClients;//是否针对clients发布0，正常发布>0 针对clients发布
     private String storagePath;//存储路径
     private long patchSize;
     private long patchSizeJiagu;
@@ -203,6 +204,7 @@ public class PatchInfo {
         this.applySize = applySize;
     }
 
+
     public String getFormatPatchSize() {
         long fileS = getPatchSize();
         if (fileS == 0) {
@@ -226,7 +228,7 @@ public class PatchInfo {
         if (applySize == 0) {
             return "0%";
         }
-        return (int)(applySuccessSize * 1.d / applySize * 1.d * 100) + "%";
+        return (int) (applySuccessSize * 1.d / applySize * 1.d * 100) + "%";
     }
 
     public String getStatusDesc() {
@@ -254,6 +256,7 @@ public class PatchInfo {
                 ", patchSize=" + patchSize +
                 ", fileHash='" + fileHash + '\'' +
                 ", description='" + description + '\'' +
+                ", publish_for_clients='" + description + '\'' +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
                 '}';
@@ -263,14 +266,11 @@ public class PatchInfo {
     public static String getStatusDesc(int status) {
         if (status == PatchInfo.STATUS_UNPUBLISHED) {
             return "未发布";
-        }
-        else if (status == PatchInfo.STATUS_PUBLISHED) {
+        } else if (status == PatchInfo.STATUS_PUBLISHED) {
             return "已发布";
-        }
-        else if (status == PatchInfo.STATUS_STOPPED) {
+        } else if (status == PatchInfo.STATUS_STOPPED) {
             return "已停止";
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("无法识别的状态: " + status);
         }
     }
@@ -278,12 +278,18 @@ public class PatchInfo {
     public static String getPublishTypeDesc(int publishType) {
         if (publishType == PUBLISH_TYPE_GRAY) {
             return "灰度发布";
-        }
-        else if (publishType == PUBLISH_TYPE_NORMAL) {
+        } else if (publishType == PUBLISH_TYPE_NORMAL) {
             return "全量发布";
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("无法识别的发布类型: " + publishType);
         }
+    }
+
+    public int getPublishForClients() {
+        return publishForClients;
+    }
+
+    public void setPublishForClients(int publishForClients) {
+        this.publishForClients = publishForClients;
     }
 }

@@ -132,7 +132,19 @@ public class ApiController {
 
             List<PatchInfo> patchInfoList = apiService.findPatchInfos(appUid, versionName);
             //查询最新的正常发布的补丁信息
-            PatchInfo resultInfo = apiService.getLatestNormalPatchInfo(patchInfoList);
+            PatchInfo normalPatchInfo = apiService.getLatestNormalPatchInfo(patchInfoList);
+            // add by dyg
+            //查询最新的针对clients的补丁信息
+            PatchInfo resultInfoForClients = apiService.getLatestPatchInfoForClients(patchInfoList);
+
+            PatchInfo resultInfo = normalPatchInfo;
+
+            if (resultInfoForClients != null) {
+                if (apiService.getClientsFromFixClientsTable(resultInfoForClients.getId(), deviceId)) {
+                    resultInfo = resultInfoForClients;
+                }
+            }
+
             // edit by dyg here grayPatch useless
 //            PatchInfo grayPatchInfo = null;
 //            if (tag != null && tag.trim().length() > 0) {

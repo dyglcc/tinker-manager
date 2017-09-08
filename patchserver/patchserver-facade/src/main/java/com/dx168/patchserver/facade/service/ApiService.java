@@ -10,6 +10,7 @@ import com.dx168.patchserver.core.utils.CacheEntry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -24,6 +25,7 @@ import java.util.regex.Pattern;
 @Service
 public class ApiService {
     private static final Logger LOG = LoggerFactory.getLogger(ApiController.class);
+    private static final int CACHE_DURATION = 5;
 
     @Autowired
     private VersionInfoMapper versionInfoMapper;
@@ -41,16 +43,19 @@ public class ApiService {
     private ChannelMapper channelMapper;
 
     @Autowired
+    private ClientFixMapper clientFixMapper;
+
+    @Autowired
     private FullUpdateInfoMapper fullUpdateInfoMapper;
 
-    private final Map<String,CacheEntry<AppInfo>> appInfoCache = new ConcurrentHashMap<>();
-    private final Map<String,CacheEntry<VersionInfo>> versionInfoCache = new ConcurrentHashMap<>();
-    private final Map<String,CacheEntry<PatchInfo>> patchInfoCache = new ConcurrentHashMap<>();
-    private final Map<String,CacheEntry<List<PatchInfo>>> patchInfoListCache = new ConcurrentHashMap<>();
-    private final Map<Integer,CacheEntry<List<Pattern>>> modelBlackListPatternCache = new ConcurrentHashMap<>();
-    private final Map<Integer,CacheEntry<List<Channel>>> channelListCache = new ConcurrentHashMap<>();
-    private final Map<String,CacheEntry<FullUpdateInfo>> fullUpdateInfoCache = new ConcurrentHashMap<>();
-    private final Map<Integer,PatchCounter> patchCounterCache = new ConcurrentHashMap<>();
+    private final Map<String, CacheEntry<AppInfo>> appInfoCache = new ConcurrentHashMap<>();
+    private final Map<String, CacheEntry<VersionInfo>> versionInfoCache = new ConcurrentHashMap<>();
+    private final Map<String, CacheEntry<PatchInfo>> patchInfoCache = new ConcurrentHashMap<>();
+    private final Map<String, CacheEntry<List<PatchInfo>>> patchInfoListCache = new ConcurrentHashMap<>();
+    private final Map<Integer, CacheEntry<List<Pattern>>> modelBlackListPatternCache = new ConcurrentHashMap<>();
+    private final Map<Integer, CacheEntry<List<Channel>>> channelListCache = new ConcurrentHashMap<>();
+    private final Map<String, CacheEntry<FullUpdateInfo>> fullUpdateInfoCache = new ConcurrentHashMap<>();
+    private final Map<Integer, PatchCounter> patchCounterCache = new ConcurrentHashMap<>();
 
     public AppInfo findAppInfo(String uid) {
         CacheEntry<AppInfo> cacheEntry = appInfoCache.get(uid);
@@ -62,7 +67,7 @@ public class ApiService {
             appInfo = appMapper.findByUid(uid);
             if (appInfo != null) {
                 LOG.info("new app cache: " + appInfo.toString());
-                appInfoCache.put(uid,new CacheEntry<>(appInfo, TimeUnit.MINUTES,10));
+                appInfoCache.put(uid, new CacheEntry<>(appInfo, TimeUnit.MINUTES, 10));
             }
         }
         return appInfo;
@@ -75,10 +80,10 @@ public class ApiService {
             versionInfo = cacheEntry.getEntry();
         }
         if (versionInfo == null) {
-            versionInfo = versionInfoMapper.findByUidAndVersionName(appUid,versionName);
+            versionInfo = versionInfoMapper.findByUidAndVersionName(appUid, versionName);
             if (versionInfo != null) {
                 LOG.info("new version cache: " + versionInfo.toString());
-                versionInfoCache.put(appUid + "-" + versionName,new CacheEntry<>(versionInfo, TimeUnit.MINUTES,10));
+                versionInfoCache.put(appUid + "-" + versionName, new CacheEntry<>(versionInfo, TimeUnit.MINUTES, CACHE_DURATION));
             }
         }
         return versionInfo;
@@ -94,7 +99,7 @@ public class ApiService {
             patchInfo = patchInfoMapper.findByUid(uid);
             if (patchInfo != null) {
                 LOG.info("new patch cache: " + patchInfo.toString());
-                patchInfoCache.put(uid,new CacheEntry<>(patchInfo, TimeUnit.MINUTES,10));
+                patchInfoCache.put(uid, new CacheEntry<>(patchInfo, TimeUnit.MINUTES, CACHE_DURATION));
             }
         }
         return patchInfo;
@@ -107,10 +112,10 @@ public class ApiService {
             patchInfoList = cacheEntry.getEntry();
         }
         if (patchInfoList == null) {
-            patchInfoList = patchInfoMapper.findByUidAndVersionName(appUid,versionName);
+            patchInfoList = patchInfoMapper.findByUidAndVersionName(appUid, versionName);
             if (patchInfoList != null) {
                 LOG.info("new patch list cache: " + patchInfoList.toString());
-                patchInfoListCache.put(appUid + "-" + versionName,new CacheEntry<>(patchInfoList, TimeUnit.MINUTES,10));
+                patchInfoListCache.put(appUid + "-" + versionName, new CacheEntry<>(patchInfoList, TimeUnit.MINUTES, CACHE_DURATION));
             }
         }
 
@@ -123,8 +128,26 @@ public class ApiService {
         }
         PatchInfo result = null;
         for (PatchInfo patchInfo : patchInfoList) {
-            if (patchInfo.getStatus() == PatchInfo.STATUS_PUBLISHED
+            if (patchInfo.getPublishForClients() == 0 && patchInfo.getStatus() == PatchInfo.STATUS_PUBLISHED
                     && patchInfo.getPublishType() == PatchInfo.PUBLISH_TYPE_NORMAL) {
+                if ((result == null || patchInfo.getPatchVersion() > result.getPatchVersion()) && new File(patchInfo.getStoragePath()).exists()) {
+                    result = patchInfo;
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 获取针对clients修复的patch,即使版本低于当前normal版本patch
+     */
+    public PatchInfo getLatestPatchInfoForClients(List<PatchInfo> patchInfoList) {
+        if (patchInfoList == null || patchInfoList.isEmpty()) {
+            return null;
+        }
+        PatchInfo result = null;
+        for (PatchInfo patchInfo : patchInfoList) {
+            if (patchInfo.getPublishForClients() > 0) {
                 if ((result == null || patchInfo.getPatchVersion() > result.getPatchVersion()) && new File(patchInfo.getStoragePath()).exists()) {
                     result = patchInfo;
                 }
@@ -170,7 +193,7 @@ public class ApiService {
             }
 
             LOG.info("new model blacklist list cache: " + patterns);
-            modelBlackListPatternCache.put(userId,new CacheEntry<List<Pattern>>(patterns,TimeUnit.MINUTES,10));
+            modelBlackListPatternCache.put(userId, new CacheEntry<List<Pattern>>(patterns, TimeUnit.MINUTES, CACHE_DURATION));
         }
         return patterns;
     }
@@ -189,7 +212,7 @@ public class ApiService {
             }
 
             LOG.info("new channel blacklist list cache: " + channelList);
-            channelListCache.put(userId,new CacheEntry<List<Channel>>(channelList,TimeUnit.MINUTES,10));
+            channelListCache.put(userId, new CacheEntry<List<Channel>>(channelList, TimeUnit.MINUTES, CACHE_DURATION));
         }
         return channelList;
     }
@@ -204,7 +227,7 @@ public class ApiService {
             fullUpdateInfo = fullUpdateInfoMapper.findByAppUid(appUid);
             if (fullUpdateInfo != null) {
                 LOG.info("new app cache: " + fullUpdateInfo.toString());
-                fullUpdateInfoCache.put(appUid,new CacheEntry<>(fullUpdateInfo, TimeUnit.MINUTES,10));
+                fullUpdateInfoCache.put(appUid, new CacheEntry<>(fullUpdateInfo, TimeUnit.MINUTES, 10));
             }
         }
         return fullUpdateInfo;
@@ -230,7 +253,7 @@ public class ApiService {
             patchCounter.setAtomicApplySuccessSize(new AtomicInteger(patchInfo.getApplySuccessSize()));
             patchCounter.setAtomicApplySize(new AtomicInteger(patchInfo.getApplySize()));
 
-            patchCounterCache.put(patchCounter.getId(),patchCounter);
+            patchCounterCache.put(patchCounter.getId(), patchCounter);
             LOG.info("new patch counter cache: " + patchCounter);
         }
         patchCounter.getAtomicApplySize().getAndIncrement();
@@ -239,7 +262,7 @@ public class ApiService {
         }
     }
 
-    @Scheduled(cron="0 0/1 8-20 * * ?")
+    @Scheduled(cron = "0 0/1 8-20 * * ?")
     public void syncPatch() {
         LOG.info("start sync： " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
         Collection<PatchCounter> patchCounterList = patchCounterCache.values();
@@ -247,8 +270,18 @@ public class ApiService {
         for (PatchCounter patchCounter : patchCounterList) {
             if (patchCounter.getAtomicApplySize() != null && patchCounter.getAtomicApplySuccessSize() != null) {
                 LOG.info("update count： " + patchCounter);
-                patchInfoMapper.updateCount(patchCounter.getId(),patchCounter.getAtomicApplySuccessSize().get(),patchCounter.getAtomicApplySize().get(),new Date());
+                patchInfoMapper.updateCount(patchCounter.getId(), patchCounter.getAtomicApplySuccessSize().get(), patchCounter.getAtomicApplySize().get(), new Date());
             }
+        }
+    }
+
+    public boolean getClientsFromFixClientsTable(Integer id, String deviceId) {
+
+        List<ClientsFix> list = clientFixMapper.findClient(id, deviceId);
+        if (list == null || list.isEmpty()) {
+            return true;
+        } else {
+            return false;
         }
     }
 }

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+
+       Copyright 2015-2016 the original author or authors.
+
+       Licensed under the Apache License, Version 2.0 (the "License");
+       you may not use this file except in compliance with the License.
+       You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+       Unless required by applicable law or agreed to in writing, software
+       distributed under the License is distributed on an "AS IS" BASIS,
+       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+       See the License for the specific language governing permissions and
+       limitations under the License.
+
+-->
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dx168.patchserver.core.mapper.ClientFixMapper">
+    <resultMap id="BaseResultMap" type="com.dx168.patchserver.core.domain.ClientsFix">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="patch_id" property="patchId" jdbcType="INTEGER"/>
+        <result column="client_id" property="clientId" jdbcType="VARCHAR"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <select id="findClients" resultMap="BaseResultMap">
+        select * from t_client_fix where patch_id = #{0} ORDER BY id DESC limit #{1},#{2};
+    </select>
+    <select id="findClient" resultMap="BaseResultMap">
+        select * from t_client_fix where patch_id = #{patchId} AND  client_id= #{clientId};
+    </select>
+
+    <insert id="insert" parameterType="com.dx168.patchserver.core.domain.ClientsFix">
+        <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+            SELECT LAST_INSERT_ID() AS id
+        </selectKey>
+        insert ignore into t_client_fix (
+        client_id, patch_id,created_at, updated_at
+        )
+        values (
+        #{clientId,jdbcType=VARCHAR},
+        #{patchId,jdbcType=INTEGER},
+        #{createdAt,jdbcType=TIMESTAMP},
+        #{updatedAt,jdbcType=TIMESTAMP}
+        )
+    </insert>
+    <insert id="saveBatchClients" parameterType="java.util.List">
+        <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+            SELECT LAST_INSERT_ID() AS id
+        </selectKey>
+        insert ignore into t_client_fix (
+        client_id, patch_id,created_at, updated_at
+        )
+        values
+        <foreach collection="list" item="client" index="index" separator=",">
+            (
+            #{client.clientId,jdbcType=VARCHAR},
+            #{client.patchId,jdbcType=INTEGER},
+            #{client.createdAt,jdbcType=TIMESTAMP},
+            #{client.updatedAt,jdbcType=TIMESTAMP}
+            )
+        </foreach>
+    </insert>
+
+    <delete id="deleteById">
+        DELETE FROM t_client_fix where id = #{id}
+    </delete>
+
+</mapper>

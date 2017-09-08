@@ -1,16 +1,20 @@
 package com.dx168.patchserver.manager.service;
 
-import com.dx168.patchserver.core.domain.ChildUserApp;
+import com.dx168.patchserver.core.domain.*;
 import com.dx168.patchserver.core.mapper.ChildUserAppMapper;
+import com.dx168.patchserver.core.mapper.ClientFixMapper;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.dx168.patchserver.core.domain.AppInfo;
-import com.dx168.patchserver.core.domain.BasicUser;
-import com.dx168.patchserver.core.domain.VersionInfo;
 import com.dx168.patchserver.core.mapper.AppMapper;
 import com.dx168.patchserver.core.mapper.VersionInfoMapper;
 import com.dx168.patchserver.core.utils.BizException;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -19,6 +23,9 @@ import java.util.*;
  */
 @Service
 public class AppService {
+
+    @Autowired
+    private ClientFixMapper clientFixMapper;
     @Autowired
     private AppMapper appMapper;
 
@@ -31,14 +38,14 @@ public class AppService {
     @Autowired
     private ChildUserAppMapper childUserAppMapper;
 
-    public AppInfo addApp(BasicUser basicUser,String appname,String description,String packageName,String platform) {
+    public AppInfo addApp(BasicUser basicUser, String appname, String description, String packageName, String platform) {
         Integer rootUserId = accountService.getRootUserId(basicUser);
-        AppInfo appInfo = appMapper.findByUserIdAndName(rootUserId,appname);
+        AppInfo appInfo = appMapper.findByUserIdAndName(rootUserId, appname);
         if (appInfo != null) {
             throw new BizException("名字为: " + appname + "的应用已存在");
         }
 
-        if (appMapper.findByUserIdAndPackageName(rootUserId,packageName) != null) {
+        if (appMapper.findByUserIdAndPackageName(rootUserId, packageName) != null) {
             throw new BizException("包名为: " + packageName + "的应用已存在");
         }
 
@@ -58,7 +65,7 @@ public class AppService {
     }
 
     public String generateAppUid(Integer rootUserId) {
-        int x = (int)(Math.random() * 9000) + 1000;
+        int x = (int) (Math.random() * 9000) + 1000;
         String nowStr = new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date());
         return nowStr + "-" + (rootUserId + x);
     }
@@ -89,7 +96,7 @@ public class AppService {
     }
 
     public VersionInfo findVersionByUidAndVersionName(AppInfo appInfo, String versionName) {
-        return versionInfoMapper.findByUidAndVersionName(appInfo.getUid(),versionName);
+        return versionInfoMapper.findByUidAndVersionName(appInfo.getUid(), versionName);
     }
 
     public void saveVersionInfo(VersionInfo versionInfo) {
@@ -125,7 +132,7 @@ public class AppService {
         return appUids;
     }
 
-    public void createChildUserAppMapping(BasicUser rootUser,Integer childUserId,ArrayList<String> appUids) {
+    public void createChildUserAppMapping(BasicUser rootUser, Integer childUserId, ArrayList<String> appUids) {
         if (appUids != null) {
             appUids.remove("");
         }
@@ -175,5 +182,55 @@ public class AppService {
                 childUserAppMapper.insert(childUserApp);
             }
         }
+    }
+
+    public void saveSingleClientFix(ClientsFix cf) {
+        cf.setCreatedAt(new Date());
+        cf.setUpdatedAt(new Date());
+        clientFixMapper.insert(cf);
+    }
+
+    public void deleteSingleClient(Integer cf) {
+        clientFixMapper.deleteById(cf);
+    }
+
+    public List<ClientsFix> getClientsByPage(Integer patchId, Integer curPage, Integer pageSize) {
+
+        return clientFixMapper.findClients(patchId, curPage, pageSize);
+    }
+
+    public void saveBatchClients(Integer patchId, MultipartFile multipartFile) {
+        List<ClientsFix> list = getClientsByFile(multipartFile, patchId);
+        clientFixMapper.saveBatchClients(list);
+    }
+
+    private List<ClientsFix> getClientsByFile(MultipartFile multipartFile, Integer patchId) {
+        List<ClientsFix> list = new ArrayList<>();
+        BufferedReader bufferedReader = null;
+        try {
+            InputStream is = multipartFile.getInputStream();
+            bufferedReader = new BufferedReader(new InputStreamReader(is, "utf-8"));
+            ClientsFix clientsFix = null;
+            String string = null;
+            while ((string = bufferedReader.readLine()) != null) {
+                clientsFix = new ClientsFix();
+                clientsFix.setPatchId(patchId);
+                clientsFix.setClientId(string);
+                clientsFix.setCreatedAt(new Date());
+                clientsFix.setUpdatedAt(new Date());
+                list.add(clientsFix);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new BizException("文件保存失败");
+        } finally {
+            if (bufferedReader != null) {
+                try {
+                    bufferedReader.close();
+                } catch (IOException e) {
+                }
+            }
+        }
+        return list;
     }
 }

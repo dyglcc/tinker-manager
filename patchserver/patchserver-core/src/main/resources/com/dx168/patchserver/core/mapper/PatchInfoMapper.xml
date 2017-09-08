@@ -29,6 +29,7 @@
         <result column="patch_version" property="patchVersion"/>
         <result column="publish_version" property="publishVersion"/>
         <result column="publish_type" property="publishType"/>
+        <result column="publish_for_clients" property="publishForClients"/>
         <result column="storage_path" property="storagePath"/>
         <result column="patch_size" property="patchSize"/>
         <result column="patch_size_jiagu" property="patchSizeJiagu"/>
@@ -77,7 +78,7 @@
     <select id="findByUidAndVersionName" resultMap="BaseResultMap">
         SELECT id,user_id, app_uid,uid,
         version_name,patch_version,publish_version,status,publish_type,tags,storage_path,patch_size,file_hash,description,download_url,apply_success_size,apply_size,
-        created_at, updated_at
+        publish_for_clients,created_at, updated_at
         FROM t_patch_info
         where app_uid = #{appUid} and version_name = #{versionName}
     </select>
@@ -85,7 +86,7 @@
     <select id="findById" resultMap="BaseResultMap">
         SELECT id,user_id, app_uid,uid,
         version_name,patch_version,publish_version,status,publish_type,tags,storage_path,patch_size,file_hash,description,download_url,apply_success_size,apply_size,
-        created_at, updated_at
+        publish_for_clients,created_at, updated_at
         FROM t_patch_info
         where id = #{id}
     </select>
@@ -93,7 +94,7 @@
     <select id="findByUid" resultMap="BaseResultMap">
         SELECT id,user_id, app_uid,uid,
         version_name,patch_version,publish_version,status,publish_type,tags,storage_path,patch_size,file_hash,description,download_url,apply_success_size,apply_size,
-        created_at, updated_at
+        publish_for_clients,created_at, updated_at
         FROM t_patch_info
         where uid = #{uid}
     </select>
@@ -101,7 +102,7 @@
     <select id="findByIdAndAppUid" resultMap="BaseResultMap">
         SELECT id,user_id, app_uid,uid,
         version_name,patch_version,publish_version,status,publish_type,tags,storage_path,patch_size,file_hash,description,download_url,apply_success_size,apply_size,
-        created_at, updated_at
+        publish_for_clients,created_at, updated_at
         FROM t_patch_info
         where id = #{id} and app_uid = #{appUid}
     </select>

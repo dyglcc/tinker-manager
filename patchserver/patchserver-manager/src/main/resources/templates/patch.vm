@@ -11,6 +11,7 @@
 
     <!-- Bootstrap Core CSS -->
     <link href="#springUrl('/static/css/bootstrap.min.css')" rel="stylesheet">
+    <link href="#springUrl('/static/css/bootstrap-pagination.min.css')" rel="stylesheet">
 
     <!-- Custom CSS -->
     <link href="#springUrl('/static/css/sb-admin.css')" rel="stylesheet">
@@ -23,11 +24,100 @@
 
     <!-- Bootstrap Core JavaScript -->
     <script type="text/javascript" src="#springUrl('/static/js/bootstrap.min.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/bootstrap-pagination.min.js')"></script>
 
     <script type="text/javascript" src="#springUrl('/static/js/bootbox.min.js')"></script>
 </head>
 
 <body>
+
+
+<!-- add by dyg-->
+
+<div class="bd-example">
+
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" id="exampleModalLabel">指定设备</h4>
+                </div>
+                <div class="modal-body">
+                    <form id="create_patch_form" action="#springUrl(
+                        '')/patch/addSingleClient?appUid=$restR.data.appInfo.uid&versionName=$!restR.data.versionInfo.versionName&patchId=$restR.data.patchInfo.id"
+                          method="post" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label for="description" class="form-control-label">设备id:</label>
+                            <input type="text" class="form-control" id="clientId" name="clientId" maxlength="32">
+                        </div>
+
+##                        <div class="form-group">
+##                            <label for="patch_file" class="form-control-label">补丁文件:</label>
+##                            <input type="file" class="form-control" id="patch_file" name="file">
+##                        </div>
+
+                        <p class="text-center"><font color="#dc143c" id="err_msg"></font></p>
+
+                    ##                        <input type="hidden" name="appUid"  value="$restR.data.appInfo.uid"/>
+                    ##                        <input type="hidden" name="versionName"  value="$!restR.data.versionInfo.versionName"/>
+                    </form>
+                </div>
+
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="create_patch">添加</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="bd-example">
+
+    <div class="modal fade" id="exampleModalFile" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" id="exampleModalLabel">批量导入设备(使用文本文件，每行一个设备ID)</h4>
+                </div>
+                <div class="modal-body">
+                    <form id="import_file_form" action="#springUrl(
+                        '')/patch/importClientFile?appUid=$restR.data.appInfo.uid&versionName=$!restR.data.versionInfo.versionName&patchId=$restR.data.patchInfo.id"
+                          method="post" enctype="multipart/form-data">
+
+                        <div class="form-group">
+                            <label for="patch_file" class="form-control-label">导入文件:</label>
+                            <input type="file" class="form-control"  id="patch_file" name="file">
+                        </div>
+
+                        <p class="text-center"><font color="#dc143c" id="err_msg"></font></p>
+
+                    ##                        <input type="hidden" name="appUid"  value="$restR.data.appInfo.uid"/>
+                    ##                        <input type="hidden" name="versionName"  value="$!restR.data.versionInfo.versionName"/>
+                    </form>
+                </div>
+
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="import_file">添加</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--add by dyg -->
+
 
 <div id="wrapper">
     <!-- Navigation -->
@@ -45,7 +135,8 @@
         <!-- Top Menu Items -->
         <ul class="nav navbar-right top-nav">
             <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> $!restR.data.user.username <b class="caret"></b></a>
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i
+                        class="fa fa-user"></i> $!restR.data.user.username <b class="caret"></b></a>
                 <ul class="dropdown-menu">
                     <li>
                         <a href="#springUrl('/logout')"><i class="fa fa-fw fa-power-off"></i> Log Out</a>
@@ -57,7 +148,9 @@
         <div class="collapse navbar-collapse navbar-ex1-collapse">
             <ul class="nav navbar-nav side-nav">
                 <li class="active">
-                    <a href="javascript:;" data-toggle="collapse" data-target="#demo"><i class="fa fa-fw fa-arrows-v"></i> $!restR.data.appInfo.appname <i class="fa fa-fw fa-caret-down"></i></a>
+                    <a href="javascript:;" data-toggle="collapse" data-target="#demo"><i
+                            class="fa fa-fw fa-arrows-v"></i> $!restR.data.appInfo.appname <i
+                            class="fa fa-fw fa-caret-down"></i></a>
                     <ul id="demo" class="collapse">
                         <li>
                             <a href="#springUrl('/app/list')">全部应用</a>
@@ -72,7 +165,8 @@
                 </li>
 
                 <li>
-                    <a href="#springUrl('')/app?appUid=$!restR.data.appInfo.uid"><i class="fa fa-fw fa-file"></i> 应用管理</a>
+                    <a href="#springUrl('')/app?appUid=$!restR.data.appInfo.uid"><i class="fa fa-fw fa-file"></i>
+                        应用管理</a>
                 </li>
 
                 <li>
@@ -95,7 +189,8 @@
             <div class="row">
                 <div class="col-lg-12">
                     <h2 class="page-header">
-                        补丁详情 <small></small>
+                        补丁详情
+                        <small></small>
                     </h2>
 
                     <p>
@@ -103,7 +198,8 @@
                         /
                         <a href="#springUrl('')/app?appUid=$!restR.data.appInfo.uid">应用管理</a>
                         /
-                        <a href="#springUrl('')/app/version?appUid=$!restR.data.appInfo.uid&versionName=$!restR.data.versionInfo.versionName">版本详情</a>
+                        <a href="#springUrl(
+                            '')/app/version?appUid=$!restR.data.appInfo.uid&versionName=$!restR.data.versionInfo.versionName">版本详情</a>
                     </p>
 
                 </div>
@@ -144,67 +240,111 @@
                 </tr>
             </table>
 
-
             #if($restR.data.qrcodeImg)
                 <img src="$!restR.data.qrcodeImg"/>
 
                 正式发布前建议您先进行本地测试
-                请使用 <a href="http://fir.im/tpks" target="_blank">debug工具</a> 扫描左侧二维码,下载补丁进行本地调试(patchsdk从1.0.8开始支持二维码调试)
+                请使用 <a href="http://fir.im/patchtool" target="_blank">debug工具</a> 扫描左侧二维码,下载补丁进行本地调试
             #end
 
-            #if($!restR.data.patchInfo.status == 0)
+            #if($!restR.data.patchInfo.publishForClients == 0)
 
-                <div id="gray_publish_container" hidden>
+                #if($!restR.data.patchInfo.status == 0)
 
-                    请输入用于灰度发布的tag(如果有多个tag用;分隔)
-                    <input type="text" id="gray_tags" style="width:900px" value="$!restR.data.tags" />
-                </div>
+                    <div id="gray_publish_container" hidden>
 
-                <br />
-                <input type="button" id="gray_publish" value="灰度发布" />  &nbsp;&nbsp;&nbsp;
+                        请输入用于灰度发布的tag(如果有多个tag用;分隔)
+                        <input type="text" id="gray_tags" style="width:900px" value="$!restR.data.tags"/>
+                    </div>
 
-                <br />
-                <br />
-                <input type="button" id="normal_publish" value="全量发布" />
+                    <br/>
+                    <input type="button" id="gray_publish" value="灰度发布" hidden/> &nbsp;&nbsp;&nbsp;
 
-                <br />
-                <br />
+                    <br/>
+                    <br/>
+                    <input type="button" id="client_publish" class="btn btn-info btn-sm" data-toggle="modal"
+                           data-target="#exampleModal" value="指定设备发布"/> &nbsp;&nbsp;&nbsp;
 
-                <input type="button" id="del_patch" value="删除补丁" />
-            #elseif($!restR.data.patchInfo.status == 1)
-                <div id="total">
-                    应用成功：<span class="t_num" id="apply_success_size">$!restR.data.patchInfo.applySuccessSize</span>次
-                    &nbsp;&nbsp;&nbsp;  总应用：<span class="t_num2" id="apply_size">$!restR.data.patchInfo.applySize</span>次
-                    &nbsp;&nbsp;&nbsp;  成功率:
-                    <span class="t_num2" id="success_scale">
-                        $!restR.data.patchInfo.formatApplyScale
+                    <br/>
+                    <br/>
+                    <input type="button" id="normal_publish" value="全量发布"/>
+
+                    <br/>
+                    <br/>
+
+                    <input type="button" id="del_patch" value="删除补丁"/>
+                #elseif($!restR.data.patchInfo.status == 1)
+                    <div id="total">
+                        应用成功：<span class="t_num" id="apply_success_size">$!restR.data.patchInfo.applySuccessSize</span>次
+                        &nbsp;&nbsp;&nbsp; 总应用：<span class="t_num2"
+                                                     id="apply_size">$!restR.data.patchInfo.applySize</span>次
+                        &nbsp;&nbsp;&nbsp; 成功率:
+                        <span class="t_num2" id="success_scale">
+                            $!restR.data.patchInfo.formatApplyScale
                     </span>
-                </div>
-                <br />
-                #if($!restR.data.patchInfo.publishType == 0)
-                    当前处于灰度发布 &nbsp;&nbsp;(tags: &nbsp; $!restR.data.patchInfo.tags)
-                    <br />
-                    <br />
+                    </div>
+                    <br/>
+                    #if($!restR.data.patchInfo.publishType == 0)
+                        当前处于灰度发布 &nbsp;&nbsp;(tags: &nbsp; $!restR.data.patchInfo.tags)
+                        <br/>
+                        <br/>
 
-                    <input type="button" id="stop_publish" value="停止灰度发布" /> &nbsp;&nbsp;&nbsp; <input type="button" id="normal_publish" value="全量发布" />
-                #else
-                    <input type="button" id="stop_publish" value="停止发布" />
+                        <input type="button" id="stop_publish" value="停止灰度发布"/> &nbsp;&nbsp;&nbsp; <input type="button"
+                                                                                                          id="normal_publish"
+                                                                                                          value="全量发布"/>
+                    #else
+                        <input type="button" id="stop_publish" value="停止发布"/>
+                    #end
+                #elseif($!restR.data.patchInfo.status == 2)
+                    <div id="total">
+                        应用成功：<span class="t_num" id="apply_success_size">$!restR.data.patchInfo.applySuccessSize</span>次
+                        &nbsp;&nbsp;&nbsp; 总应用：<span class="t_num2"
+                                                     id="apply_size">$!restR.data.patchInfo.applySize</span>次
+                        &nbsp;&nbsp;&nbsp; 成功率:
+                        <span class="t_num2" id="success_scale">
+                            $!restR.data.patchInfo.formatApplyScale
+                    </span>
+                    </div>
+                    <br/>
+
+                    <input type="button" id="normal_publish" value="继续发布(全量)"/>
+
+                    <input type="button" id="del_patch" value="删除补丁"/>
                 #end
-            #elseif($!restR.data.patchInfo.status == 2)
-                <div id="total">
-                    应用成功：<span class="t_num" id="apply_success_size">$!restR.data.patchInfo.applySuccessSize</span>次
-                    &nbsp;&nbsp;&nbsp;  总应用：<span class="t_num2" id="apply_size">$!restR.data.patchInfo.applySize</span>次
-                    &nbsp;&nbsp;&nbsp;  成功率:
-                    <span class="t_num2" id="success_scale">
-                        $!restR.data.patchInfo.formatApplyScale
-                    </span>
-                </div>
-                <br />
 
-                <input type="button" id="normal_publish" value="继续发布(全量)" />
+            #elseif($!restR.data.patchInfo.publishForClients > 0)
+                <br/>
+                <input type="button" id="client_publish" class="btn btn-info btn-sm" data-toggle="modal"
+                       data-target="#exampleModal" value="指定设备发布"/> &nbsp;&nbsp;&nbsp;
+                <input type="button" class="btn btn-info btn-sm" data-toggle="modal"
+                       data-target="#exampleModalFile" value="批量导入"/> &nbsp;&nbsp;&nbsp;
+                <table class="table table-bordered" style="margin-top: 15px;">
+                    <tr>
+                        <th>设备ID</th>
+                        <th>执行状态</th>
+                        <th>操作</th>
+                    </tr>
 
-                <input type="button" id="del_patch" value="删除补丁" />
+                    #foreach($clientInfo in $restR.data.clientInfoList)
+                        <tr>
+                            <th>$!clientInfo.clientId</th>
+                            <th>$!clientInfo.id</th>
+                            <th><a href="#springUrl(
+                                '')/patch/delClient?patchId=$!clientInfo.patchId&id=$!clientInfo.id&appUid=$restR.data.appInfo.uid">删除</a>
+                            </th>
+                        </tr>
+                    #end
+                </table>
+                <nav>
+                    <ul id="demo1" class="pagination_aa">
+                    </ul>
+                    <ul id="demo222" class="pagination">
+                        sdfasdlfalsdlfsldf
+                    </ul>
+                </nav>
+
             #end
+
 
         </div>
     </div>
@@ -214,9 +354,9 @@
 <script>
     function getData() {
         jQuery.ajax({
-            url:  "#springUrl('')/patch/info?appUid=$!restR.data.patchInfo.appUid&id=$!restR.data.patchInfo.id",
+            url: "#springUrl('')/patch/info?appUid=$!restR.data.patchInfo.appUid&id=$!restR.data.patchInfo.id",
             type: 'post',
-            success:function(res, textStatus, jqXHR){
+            success: function (res, textStatus, jqXHR) {
                 if (res.code == 200) {
                     console.log('refresh data applySuccessSize： ' + res.data.patchInfo.applySuccessSize + ' applySize: ' + res.data.patchInfo.applySize);
 
@@ -228,35 +368,44 @@
         });
     }
 
-    $(document).ready(function(){
-        $("#normal_publish").click(function(){
+    $(document).ready(function () {
+
+        #if($restR.data.msg)
+            var dialog = bootbox.dialog({
+//                title: 'A custom dialog with init',
+                message: '<p><i class="fa fa-spin fa-spinner"></i> $!restR.data.msg</p>'
+            });
+        #end
+
+        $("#normal_publish").click(function () {
             var dialog = bootbox.dialog({
 //                title: 'A custom dialog with init',
                 message: '<p><i class="fa fa-spin fa-spinner"></i> 正在处理...</p>'
             });
-            dialog.init(function(){
+            dialog.init(function () {
                 jQuery.ajax({
-                    url:  "#springUrl('')/patch/normal_publish?appUid=$!restR.data.patchInfo.appUid&id=$!restR.data.patchInfo.id",
+                    url: "#springUrl(
+                        '')/patch/normal_publish?appUid=$!restR.data.patchInfo.appUid&id=$!restR.data.patchInfo.id",
                     type: 'post',
-                    success:function(res, textStatus, jqXHR){
+                    success: function (res, textStatus, jqXHR) {
                         if (res.code == 200) {
                             dialog.find('.bootbox-body').html('发布成功!');
 
-                            setTimeout(function(){
+                            setTimeout(function () {
                                 window.location.href = window.location.href;
                             }, 500);
                         } else {
                             dialog.find('.bootbox-body').html(res.message);
                         }
                     },
-                    error:function(XMLHttpRequest, textStatus, errorThrown){
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
                         dialog.find('.bootbox-body').html('系统异常!');
                     }
                 });
             });
         });
 
-        $("#stop_publish").click(function(){
+        $("#stop_publish").click(function () {
             bootbox.confirm({
                 message: "确定停止发布这个补丁吗?",
                 buttons: {
@@ -280,23 +429,24 @@
 //                title: 'A custom dialog with init',
                         message: '<p><i class="fa fa-spin fa-spinner"></i> 正在处理...</p>'
                     });
-                    dialog.init(function(){
+                    dialog.init(function () {
                         jQuery.ajax({
-                            url:  "#springUrl('')/patch/stop_publish?appUid=$!restR.data.patchInfo.appUid&id=$!restR.data.patchInfo.id",
+                            url: "#springUrl(
+                                '')/patch/stop_publish?appUid=$!restR.data.patchInfo.appUid&id=$!restR.data.patchInfo.id",
                             type: 'post',
-                            success:function(res, textStatus, jqXHR){
+                            success: function (res, textStatus, jqXHR) {
                                 console.log(res);
                                 if (res.code == 200) {
                                     dialog.find('.bootbox-body').html('已停止发布!');
 
-                                    setTimeout(function(){
+                                    setTimeout(function () {
                                         window.location.href = window.location.href;
                                     }, 500);
                                 } else {
                                     dialog.find('.bootbox-body').html(res.message);
                                 }
                             },
-                            error:function(XMLHttpRequest, textStatus, errorThrown){
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
                                 dialog.find('.bootbox-body').html('系统异常!');
                             }
                         });
@@ -305,7 +455,7 @@
             });
         });
 
-        $("#del_patch").click(function(){
+        $("#del_patch").click(function () {
             bootbox.confirm({
                 message: "确定删除这个补丁吗?",
                 buttons: {
@@ -329,22 +479,24 @@
 //                title: 'A custom dialog with init',
                         message: '<p><i class="fa fa-spin fa-spinner"></i> 正在处理...</p>'
                     });
-                    dialog.init(function(){
+                    dialog.init(function () {
                         jQuery.ajax({
-                            url:  "#springUrl('')/patch/delete?appUid=$!restR.data.patchInfo.appUid&id=$!restR.data.patchInfo.id",
+                            url: "#springUrl(
+                                '')/patch/delete?appUid=$!restR.data.patchInfo.appUid&id=$!restR.data.patchInfo.id",
                             type: 'post',
-                            success:function(res, textStatus, jqXHR){
+                            success: function (res, textStatus, jqXHR) {
                                 if (res.code == 200) {
                                     dialog.find('.bootbox-body').html('删除成功!');
 
-                                    setTimeout(function(){
-                                        window.location.href = "#springUrl('')/app/version?appUid=$!restR.data.patchInfo.appUid&versionName=$!restR.data.patchInfo.versionName";
+                                    setTimeout(function () {
+                                        window.location.href = "#springUrl(
+                                            '')/app/version?appUid=$!restR.data.patchInfo.appUid&versionName=$!restR.data.patchInfo.versionName";
                                     }, 500);
                                 } else {
                                     dialog.find('.bootbox-body').html(res.message);
                                 }
                             },
-                            error:function(XMLHttpRequest, textStatus, errorThrown){
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
                                 dialog.find('.bootbox-body').html('系统异常!');
                             }
                         });
@@ -353,7 +505,7 @@
             });
         });
 
-        $("#gray_publish").click(function(){
+        $("#gray_publish").click(function () {
             if ($("#gray_tags").val().length == 0) {
                 bootbox.alert({
                     message: "tag列表不能为空!",
@@ -366,29 +518,104 @@
 //                title: 'A custom dialog with init',
                 message: '<p><i class="fa fa-spin fa-spinner"></i> 正在处理...</p>'
             });
-            dialog.init(function(){
+            dialog.init(function () {
                 jQuery.ajax({
-                    url:  "#springUrl('')/patch/gray_publish?appUid=$!restR.data.patchInfo.appUid&id=$!restR.data.patchInfo.id&tags=" + $("#gray_tags").val(),
+                    url: "#springUrl(
+                        '')/patch/gray_publish?appUid=$!restR.data.patchInfo.appUid&id=$!restR.data.patchInfo.id&tags=" + $("#gray_tags").val(),
                     type: 'post',
-                    success:function(res, textStatus, jqXHR){
+                    success: function (res, textStatus, jqXHR) {
                         if (res.code == 200) {
                             dialog.find('.bootbox-body').html('灰度发布成功!');
 
-                            setTimeout(function(){
+                            setTimeout(function () {
                                 window.location.href = window.location.href;
                             }, 500);
                         } else {
                             dialog.find('.bootbox-body').html("<font color='red'>" + res.message + "</font>");
                         }
                     },
-                    error:function(XMLHttpRequest, textStatus, errorThrown){
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
                         dialog.find('.bootbox-body').html("<font color='red'>系统异常!</font>");
                     }
                 });
             });
         });
-        window.setInterval("getData()",1000 * 40);
+        window.setInterval("getData()", 1000 * 40);
+
+        <!-- add by dyg-->
+        $("#create_patch").click(function () {
+            if ($("#clientId").val().length == 0) {
+                $("#err_msg").text('请输入设备ID');
+                return
+            }
+            /*
+            if ($("#patch_file").val().length == 0) {
+                $("#err_msg").text('请选择补丁文件');
+                return
+            }
+
+
+            if (!$("#patch_file").val().endsWith('.apk') && !$("#patch_file").val().endsWith('.jar') && !$("#patch_file").val().endsWith('.zip') && !$("#patch_file").val().endsWith('.dex')) {
+                $("#err_msg").text('补丁文件的名字必须以.apk .jar .zip .dex结尾');
+                $("#patch_file").val('');
+                return;
+            }
+            */
+            $("#err_msg").text('');
+
+
+            var dialog = bootbox.dialog({
+                message: '<p><i class="fa fa-spin fa-spinner"></i> 正在处理...</p>'
+            });
+            dialog.init(function () {
+                setTimeout(function () {
+                    window.location.href = window.location.href;
+                }, 5000);
+            });
+            $("#create_patch_form").submit();
+        });
+
+        $("#import_file").click(function () {
+            if ($("#patch_file").val().length == 0) {
+                $("#err_msg").text('请选择导入文件');
+                return
+            }
+
+
+            if (!$("#patch_file").val().endsWith('.txt')) {
+                $("#err_msg").text('文件以txt结尾');
+                $("#patch_file").val('');
+                return;
+            }
+            $("#err_msg").text('');
+
+
+            var dialog = bootbox.dialog({
+                message: '<p><i class="fa fa-spin fa-spinner"></i> 正在处理...</p>'
+            });
+            dialog.init(function () {
+                setTimeout(function () {
+                    window.location.href = window.location.href;
+                }, 5000);
+            });
+            $("#import_file_form").submit();
+        });
     });
+
+    $(function () {
+        var demo1 = BootstrapPagination($(".demo1"), {
+            //记录总数。
+            total: 101,
+            //当前页索引编号。从其开始（从0开始）的整数。
+            pageIndex: 2,
+            //当分页更改后引发此事件。
+            pageChanged: function (pageIndex, pageSize) {
+                alert("page changed. pageIndex:" + pageIndex + ",pageSize:" + pageSize)
+            },
+        });
+    });
+
+
 </script>
 </body>
 
