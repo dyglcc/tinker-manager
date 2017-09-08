@@ -303,3 +303,42 @@ FOR EACH ROW
                              FROM t_client_fix
                              WHERE patch_id = OLD.patch_id)
   WHERE id = OLD.patch_id;
+
+/*创建t_client_fix表的分页存储过程，stored procedure proce_page_client_fix*/
+
+DELIMITER $$
+
+DROP PROCEDURE IF EXISTS proce_page_client_fix;
+$$
+CREATE PROCEDURE proce_page_client_fix(
+  IN curPage  INT,
+  IN pageSize INT,
+  IN patchId INT
+)
+  BEGIN
+    IF curPage <= 0
+    THEN
+      SET curPage = 1;
+    END IF;
+    IF curPage IS NULL
+    THEN
+      SET curPage = 1;
+    END IF;
+    IF pageSize <= 0
+    THEN
+      SET pageSize = 10;
+    END IF;
+    IF pageSize IS NULL
+    THEN
+      SET pageSize = 10;
+    END IF;
+    SET @patchId = patchId;
+    SET @pageSize = pageSize;
+    SET @curPage = (curPage - 1) * pageSize;
+    PREPARE s1 FROM "
+    select sql_calc_found_rows * from t_client_fix where patch_id = ? limit ?,?";
+    EXECUTE s1
+    USING @patchId,@curPage, @pageSize;
+    DEALLOCATE PREPARE s1;
+    SELECT found_rows() AS count;
+  END
