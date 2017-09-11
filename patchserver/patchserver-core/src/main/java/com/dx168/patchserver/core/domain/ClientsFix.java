@@ -11,6 +11,8 @@ public class ClientsFix {
 
     // 设备id
     private String clientId;
+    // 补丁下发状态
+    private Integer apply;
     // 创建时间
     private Date createdAt;
     // 更新时间
@@ -56,11 +58,20 @@ public class ClientsFix {
         this.id = id;
     }
 
+    public Integer getApply() {
+        return apply;
+    }
+
+    public void setApply(Integer apply) {
+        this.apply = apply;
+    }
+
     @Override
     public String toString() {
         return "ClientFix{" +
                 "id=" + id +
                 ", clientId=" + clientId +
+                ", apply=" + apply +
                 ", patchId='" + patchId + '\'' +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +

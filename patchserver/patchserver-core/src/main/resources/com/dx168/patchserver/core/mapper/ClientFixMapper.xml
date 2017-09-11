@@ -24,10 +24,24 @@
     <resultMap id="BaseResultMap" type="com.dx168.patchserver.core.domain.ClientsFix">
         <id column="id" property="id" jdbcType="INTEGER"/>
         <result column="patch_id" property="patchId" jdbcType="INTEGER"/>
+        <result column="apply" property="apply" jdbcType="INTEGER"/>
         <result column="client_id" property="clientId" jdbcType="VARCHAR"/>
         <result column="created_at" property="createdAt"/>
         <result column="updated_at" property="updatedAt"/>
     </resultMap>
+    <resultMap id="count" type="java.lang.Integer">
+
+        <result column="count" jdbcType="INTEGER"></result>
+    </resultMap>
+
+
+    <select id="findClientsAndCount" resultMap="BaseResultMap,count" statementType="CALLABLE">
+
+        {
+        CALL  proce_page_client_fix(#{0,jdbcType=INTEGER},
+                                                  #{1,jdbcType=INTEGER},#{2,jdbcType=INTEGER})
+        }
+    </select>
 
     <select id="findClients" resultMap="BaseResultMap">
         select * from t_client_fix where patch_id = #{0} ORDER BY id DESC limit #{1},#{2};
@@ -35,6 +49,10 @@
     <select id="findClient" resultMap="BaseResultMap">
         select * from t_client_fix where patch_id = #{patchId} AND  client_id= #{clientId};
     </select>
+
+    <update id="updateClientPublishSuccessFlag">
+        UPDATE t_client_fix SET apply = 1 where patch_id = #{1} and client_id = #{0};
+    </update>
 
     <insert id="insert" parameterType="com.dx168.patchserver.core.domain.ClientsFix">
         <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">

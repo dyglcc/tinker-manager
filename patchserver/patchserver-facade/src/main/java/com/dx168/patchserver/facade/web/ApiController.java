@@ -229,6 +229,10 @@ public class ApiController {
             }
 
             apiService.report(patchInfo, applyResult);
+            // publishForClients 判断是否是针对设备发布，需要更新apply字段
+            if (patchInfo.getPublishForClients() > 0) {
+                apiService.updateClientPublishSuccessFlag(deviceId, patchInfo.getId());
+            }
         } catch (BizException e) {
             restR.setCode(-1);
             restR.setMessage(e.getMessage());

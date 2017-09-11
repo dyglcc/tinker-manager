@@ -19,6 +19,7 @@ import com.dx168.patchserver.core.utils.HttpRequestUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -117,17 +118,35 @@ public class ManagerController {
     }
 
     @RequestMapping(value = "/app", method = RequestMethod.GET)
-    public ModelAndView app(HttpServletRequest req, String appUid) {
+    public ModelAndView app(HttpServletRequest req, String appUid, @RequestParam(value = "curPage", required = false, defaultValue = "1") Integer curPage,
+                            @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize) {
         RestResponse restR = new RestResponse();
-        BizAssert.notEpmty(appUid, "应用编号不能为空");
-        AppInfo appInfo = appService.findByUid(appUid);
-        BasicUser basicUser = (BasicUser) req.getSession().getAttribute(Constants.SESSION_LOGIN_USER);
-        List<AppInfo> appInfoList = appService.findAllAppInfoByUser(basicUser);
-        restR.getData().put("user", basicUser);
-        restR.getData().put("appInfo", appInfo);
-        restR.getData().put("appInfoList", appInfoList);
-        restR.getData().put("versionList", appService.findAllVersion(appInfo));
-        return new ModelAndView("app", "restR", restR);
+        try {
+            BizAssert.notEpmty(appUid, "应用编号不能为空");
+            AppInfo appInfo = appService.findByUid(appUid);
+            BasicUser basicUser = (BasicUser) req.getSession().getAttribute(Constants.SESSION_LOGIN_USER);
+            List<AppInfo> appInfoList = appService.findAllAppInfoByUser(basicUser);
+
+            List<Object> list = appService.findPageVersion(appInfo, curPage, pageSize);
+
+            if (list == null || list.size() != 2) {
+                throw new BizException("查询异常！");
+            }
+            List<VersionInfo> versionInfos = (List<VersionInfo>) list.get(0);
+            int count = ((ArrayList<Integer>) list.get(1)).get(0);
+            restR.getData().put("user", basicUser);
+            restR.getData().put("appInfo", appInfo);
+            restR.getData().put("appInfoList", appInfoList);
+            restR.getData().put("versionList", versionInfos);
+            restR.getData().put("countPage", (count + pageSize) / pageSize);
+            restR.getData().put("curPage", curPage);
+            return new ModelAndView("app", "restR", restR);
+
+        } catch (BizException e) {
+            restR.setCode(-1);
+            restR.setMessage(e.getMessage());
+            return new ModelAndView("app", "restR", restR);
+        }
     }
 
     @RequestMapping(value = "/tester/list", method = RequestMethod.GET)
@@ -346,30 +365,45 @@ public class ManagerController {
     }
 
     @RequestMapping(value = "/app/version", method = RequestMethod.GET)
-    public ModelAndView app_version(HttpServletRequest req, String appUid, String versionName) {
+    public ModelAndView app_version(HttpServletRequest req, String appUid, String versionName, @RequestParam(value = "curPage", required = false, defaultValue = "1") Integer curPage,
+                                    @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize) {
         RestResponse restR = new RestResponse();
-        BizAssert.notEpmty(appUid, "应用号不能为空");
-        BizAssert.notEpmty(versionName, "版本号不能为空");
+        try {
+            BizAssert.notEpmty(appUid, "应用号不能为空");
+            BizAssert.notEpmty(versionName, "版本号不能为空");
 
-        AppInfo appInfo = appService.findByUid(appUid);
-        VersionInfo versionInfo = appService.findVersionByUidAndVersionName(appInfo, versionName);
-        if (versionInfo == null) {
-            throw new BizException("该版本未找到: " + versionName);
+            AppInfo appInfo = appService.findByUid(appUid);
+            VersionInfo versionInfo = appService.findVersionByUidAndVersionName(appInfo, versionName);
+            if (versionInfo == null) {
+                throw new BizException("该版本未找到: " + versionName);
+            }
+            //加载所有patch信息
+            List<Object> list = patchService.findPageByUidAndVersionName(appUid, versionName, curPage, pageSize);
+            if (list == null || list.size() != 2) {
+                throw new BizException("查询异常！");
+            }
+            List<PatchInfo> patchInfoList = (List<PatchInfo>) list.get(0);
+
+            int count = ((ArrayList<Integer>) list.get(1)).get(0);
+
+            restR.getData().put("appInfo", appInfo);
+            restR.getData().put("versionInfo", versionInfo);
+            restR.getData().put("patchInfoList", patchInfoList);
+            restR.getData().put("countPage", (count + pageSize) / pageSize);
+            restR.getData().put("curPage", curPage);
+
+            BasicUser basicUser = (BasicUser) req.getSession().getAttribute(Constants.SESSION_LOGIN_USER);
+            List<AppInfo> appInfoList = appService.findAllAppInfoByUser(basicUser);
+            restR.getData().put("user", basicUser);
+            restR.getData().put("appInfoList", appInfoList);
+            restR.getData().put("versionList", appService.findAllVersion(appInfo));
+            restR.getData().put("maxPatchSize", maxPatchSize);
+            return new ModelAndView("version", "restR", restR);
+        }catch (Exception e){
+            restR.setCode(-1);
+            restR.setMessage(e.getMessage());
+            return new ModelAndView("version", "restR", restR);
         }
-        //加载所有patch信息
-        List<PatchInfo> patchInfoList = patchService.findByUidAndVersionName(appUid, versionName);
-
-        restR.getData().put("appInfo", appInfo);
-        restR.getData().put("versionInfo", versionInfo);
-        restR.getData().put("patchInfoList", patchInfoList);
-
-        BasicUser basicUser = (BasicUser) req.getSession().getAttribute(Constants.SESSION_LOGIN_USER);
-        List<AppInfo> appInfoList = appService.findAllAppInfoByUser(basicUser);
-        restR.getData().put("user", basicUser);
-        restR.getData().put("appInfoList", appInfoList);
-        restR.getData().put("versionList", appService.findAllVersion(appInfo));
-        restR.getData().put("maxPatchSize", maxPatchSize);
-        return new ModelAndView("version", "restR", restR);
     }
 
 
@@ -454,7 +488,7 @@ public class ManagerController {
 
     @RequestMapping(value = "/patch", method = RequestMethod.GET)
     public ModelAndView patch_detail(HttpServletRequest req, Integer id, String appUid, @RequestParam(value = "curPage"
-            , required = false, defaultValue = "0") Integer curPage,
+            , required = false, defaultValue = "1") Integer curPage,
                                      @RequestParam(value = "pageSize", required = false, defaultValue = "10")
                                              Integer pageSize) {
         RestResponse restR = new RestResponse();
@@ -483,8 +517,13 @@ public class ManagerController {
         restR.getData().put("patchInfo", patchInfo);
 
         if (patchInfo.getPublishForClients() > 0) {
-            List<ClientsFix> clientList = appService.getClientsByPage(patchInfo.getId(), curPage, pageSize);
+            List<Object> pageObj = appService.getClientsPagesAndCounts(patchInfo.getId(), curPage, pageSize);
+            List<ClientsFix> clientList = (List<ClientsFix>) pageObj.get(0);
+            // 总记录数
+            Integer count = ((ArrayList<Integer>) pageObj.get(1)).get(0);
             restR.getData().put("clientInfoList", clientList);
+            restR.getData().put("countPage", (count + pageSize) / pageSize);
+            restR.getData().put("curPage", curPage);
         }
 
 

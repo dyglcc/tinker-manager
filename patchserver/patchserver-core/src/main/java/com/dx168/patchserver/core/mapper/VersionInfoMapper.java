@@ -15,5 +15,7 @@ public interface VersionInfoMapper {
 
     List<VersionInfo> findAllByAppUid(String appUid);
 
-    VersionInfo findByUidAndVersionName(@Param("appUid") String appUid,@Param("versionName") String versionName);
+    List<Object> findPageByAppUid(Integer curPage, Integer pageSize, String appUid);
+
+    VersionInfo findByUidAndVersionName(@Param("appUid") String appUid, @Param("versionName") String versionName);
 }

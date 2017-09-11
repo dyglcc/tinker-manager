@@ -16,11 +16,13 @@ public interface PatchInfoMapper {
 
     List<PatchInfo> findByUidAndVersionName(@Param("appUid") String appUid, @Param("versionName") String versionName);
 
+    List<Object> findPageByUidAndVersionName(@Param("appUid") String appUid, @Param("versionName") String versionName, @Param("curPage") Integer curPage, @Param("pageSize") Integer pageSize);
+
     PatchInfo findById(Integer id);
 
     PatchInfo findByUid(String uid);
 
-    PatchInfo findByIdAndAppUid(@Param("id") Integer id,@Param("appUid") String appUid);
+    PatchInfo findByIdAndAppUid(@Param("id") Integer id, @Param("appUid") String appUid);
 
     void updateStatus(PatchInfo patchInfo);
 

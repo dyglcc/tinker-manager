@@ -91,9 +91,15 @@ public class AppService {
         return appMapper.findByUid(uid);
     }
 
+    @Deprecated
     public List<VersionInfo> findAllVersion(AppInfo appInfo) {
         return versionInfoMapper.findAllByAppUid(appInfo.getUid());
     }
+
+    public List<Object> findPageVersion(AppInfo appInfo, Integer curPage, Integer pageSize) {
+        return versionInfoMapper.findPageByAppUid(curPage, pageSize, appInfo.getUid());
+    }
+
 
     public VersionInfo findVersionByUidAndVersionName(AppInfo appInfo, String versionName) {
         return versionInfoMapper.findByUidAndVersionName(appInfo.getUid(), versionName);
@@ -194,10 +200,15 @@ public class AppService {
         clientFixMapper.deleteById(cf);
     }
 
-    public List<ClientsFix> getClientsByPage(Integer patchId, Integer curPage, Integer pageSize) {
+    //    public List<ClientsFix> getClientsByPage(Integer patchId, Integer curPage, Integer pageSize) {
+//
+//        return clientFixMapper.findClients(patchId, curPage, pageSize);
+//    }
+    public List<Object> getClientsPagesAndCounts(Integer patchId, Integer curPage, Integer pageSize) {
 
-        return clientFixMapper.findClients(patchId, curPage, pageSize);
+        return clientFixMapper.findClientsAndCount(curPage, pageSize, patchId);
     }
+
 
     public void saveBatchClients(Integer patchId, MultipartFile multipartFile) {
         List<ClientsFix> list = getClientsByFile(multipartFile, patchId);
@@ -213,12 +224,14 @@ public class AppService {
             ClientsFix clientsFix = null;
             String string = null;
             while ((string = bufferedReader.readLine()) != null) {
-                clientsFix = new ClientsFix();
-                clientsFix.setPatchId(patchId);
-                clientsFix.setClientId(string);
-                clientsFix.setCreatedAt(new Date());
-                clientsFix.setUpdatedAt(new Date());
-                list.add(clientsFix);
+                if (string != null && string.trim().length() > 0) {
+                    clientsFix = new ClientsFix();
+                    clientsFix.setPatchId(patchId);
+                    clientsFix.setClientId(string);
+                    clientsFix.setCreatedAt(new Date());
+                    clientsFix.setUpdatedAt(new Date());
+                    list.add(clientsFix);
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();

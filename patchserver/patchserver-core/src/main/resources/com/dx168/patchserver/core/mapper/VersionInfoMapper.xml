@@ -21,16 +21,27 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.dx168.patchserver.core.mapper.VersionInfoMapper">
-    <resultMap id="BaseResultMap" type="com.dx168.patchserver.core.domain.VersionInfo" >
-        <id column="id" property="id" jdbcType="INTEGER" />
-        <result column="user_id" property="userId" jdbcType="INTEGER" />
-        <result column="app_uid" property="appUid" />
-        <result column="version_name" property="versionName" />
-        <result column="created_at" property="createdAt" />
-        <result column="updated_at" property="updatedAt" />
+    <resultMap id="BaseResultMap" type="com.dx168.patchserver.core.domain.VersionInfo">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="user_id" property="userId" jdbcType="INTEGER"/>
+        <result column="app_uid" property="appUid"/>
+        <result column="version_name" property="versionName"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
     </resultMap>
 
-    <select id="findByUidAndVersionName" resultType="com.dx168.patchserver.core.domain.VersionInfo" resultMap="BaseResultMap" >
+    <resultMap id="countVersions" type="java.lang.Integer">
+        <result column="count" jdbcType="INTEGER"></result>
+    </resultMap>
+    <select id="findPageByAppUid" resultMap="BaseResultMap,countVersions" statementType="CALLABLE">
+
+        {
+            CALL proc_page_versions(#{0,jdbcType=INTEGER},#{1,jdbcType=INTEGER},#{2,jdbcType=VARCHAR})
+        }
+    </select>
+
+    <select id="findByUidAndVersionName" resultType="com.dx168.patchserver.core.domain.VersionInfo"
+            resultMap="BaseResultMap">
         select * from t_version_info
         where app_uid = #{appUid} and version_name = #{versionName}
     </select>

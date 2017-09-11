@@ -284,4 +284,8 @@ public class ApiService {
             return false;
         }
     }
+
+    public void updateClientPublishSuccessFlag(String deviceId, Integer id) {
+        clientFixMapper.updateClientPublishSuccessFlag(deviceId, id);
+    }
 }

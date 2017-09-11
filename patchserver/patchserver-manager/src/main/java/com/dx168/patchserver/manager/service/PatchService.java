@@ -61,8 +61,12 @@ public class PatchService {
 
     private ExecutorService executorService = Executors.newFixedThreadPool(20);
 
+    @Deprecated
     public List<PatchInfo> findByUidAndVersionName(String appUid,String versionName) {
         return patchInfoMapper.findByUidAndVersionName(appUid,versionName);
+    }
+    public List<Object> findPageByUidAndVersionName(String appUid,String versionName,Integer curPage,Integer pageSize) {
+        return patchInfoMapper.findPageByUidAndVersionName(appUid,versionName,curPage,pageSize);
     }
 
     public PatchInfo savePatch(AppInfo appInfo, VersionInfo versionInfo, String description, MultipartFile multipartFile) {

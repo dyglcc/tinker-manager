@@ -268,6 +268,8 @@ CREATE TABLE `t_client_fix` (
   COMMENT 'ID',
   `client_id`  VARCHAR(32) COMMENT '被更新设备id',
   `patch_id`   INT COMMENT '补丁的id',
+  `apply`      INT          DEFAULT 0
+  COMMENT '执行状态',
   `created_at` DATETIME     DEFAULT NULL
   COMMENT '创建时间',
   `updated_at` DATETIME     DEFAULT NULL
@@ -313,7 +315,7 @@ $$
 CREATE PROCEDURE proce_page_client_fix(
   IN curPage  INT,
   IN pageSize INT,
-  IN patchId INT
+  IN patchId  INT
 )
   BEGIN
     IF curPage <= 0
@@ -338,7 +340,96 @@ CREATE PROCEDURE proce_page_client_fix(
     PREPARE s1 FROM "
     select sql_calc_found_rows * from t_client_fix where patch_id = ? limit ?,?";
     EXECUTE s1
-    USING @patchId,@curPage, @pageSize;
+    USING @patchId, @curPage, @pageSize;
     DEALLOCATE PREPARE s1;
+    SELECT found_rows() AS count;
+  END
+
+
+    /*创建t_version_info表的分页存储过程，stored procedure proc_page_versions*/
+
+    DELIMITER $$
+
+DROP PROCEDURE IF EXISTS proc_page_versions;
+$$
+CREATE PROCEDURE proc_page_versions(
+  IN curPage  INT,
+  IN pageSize INT,
+  IN appUid   VARCHAR(64)
+)
+  BEGIN
+    IF curPage <= 0
+    THEN
+      SET curPage = 1;
+    END IF;
+    IF curPage IS NULL
+    THEN
+      SET curPage = 1;
+    END IF;
+    IF pageSize <= 0
+    THEN
+      SET pageSize = 10;
+    END IF;
+    IF pageSize IS NULL
+    THEN
+      SET pageSize = 10;
+    END IF;
+    SET @appUid = appUid;
+    SET @pageSize = pageSize;
+    SET @curPage = (curPage - 1) * pageSize;
+    PREPARE s2 FROM "
+    SELECT sql_calc_found_rows id,user_id, app_uid, version_name, created_at, updated_at
+    FROM t_version_info where app_uid = ?
+    order by created_at desc limit ?,? ";
+    EXECUTE s2
+    USING @appUid, @curPage, @pageSize;
+    DEALLOCATE PREPARE s2;
+    SELECT found_rows() AS count;
+  END
+
+
+    /*创建t_version_info表的分页存储过程，stored procedure proc_page_patch*/
+
+    DELIMITER $$
+
+DROP PROCEDURE IF EXISTS proc_page_patch;
+$$
+CREATE PROCEDURE proc_page_patch(
+  IN appUid      VARCHAR(64),
+  IN versionName VARCHAR(64),
+  IN curPage     INT,
+  IN pageSize    INT
+)
+  BEGIN
+    IF curPage <= 0
+    THEN
+      SET curPage = 1;
+    END IF;
+    IF curPage IS NULL
+    THEN
+      SET curPage = 1;
+    END IF;
+    IF pageSize <= 0
+    THEN
+      SET pageSize = 10;
+    END IF;
+    IF pageSize IS NULL
+    THEN
+      SET pageSize = 10;
+    END IF;
+    SET @appUid = appUid;
+    SET @versionName = versionName;
+    SET @pageSize = pageSize;
+    SET @curPage = (curPage - 1) * pageSize;
+    PREPARE spatchs FROM "
+    SELECT sql_calc_found_rows id,user_id, app_uid,uid,
+      version_name,patch_version,publish_version,status,publish_type,tags,storage_path,patch_size,file_hash,description,download_url,apply_success_size,apply_size,
+      publish_for_clients,created_at, updated_at
+    FROM t_patch_info
+    where app_uid = ? and version_name = ?
+    order by created_at desc limit ?,? ";
+    EXECUTE spatchs
+    USING @appUid, @versionName, @curPage, @pageSize;
+    DEALLOCATE PREPARE spatchs;
     SELECT found_rows() AS count;
   END

@@ -25,13 +25,15 @@
     <script type="text/javascript" src="#springUrl('/static/js/bootstrap.min.js')"></script>
 
     <script type="text/javascript" src="#springUrl('/static/js/bootbox.min.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/jqpaginator.min.js')"></script>
 </head>
 
 <body>
 
 <div class="bd-example">
 
-    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -41,10 +43,13 @@
                     <h4 class="modal-title" id="exampleModalLabel">上传补丁</h4>
                 </div>
                 <div class="modal-body">
-                    <form id="create_patch_form" action="#springUrl('')/patch/add?appUid=$restR.data.appInfo.uid&versionName=$!restR.data.versionInfo.versionName" method="post" enctype="multipart/form-data">
+                    <form id="create_patch_form" action="#springUrl(
+                        '')/patch/add?appUid=$restR.data.appInfo.uid&versionName=$!restR.data.versionInfo.versionName"
+                          method="post" enctype="multipart/form-data">
                         <div class="form-group">
                             <label for="description" class="form-control-label">补丁描述:</label>
-                            <input type="text" class="form-control" id="description" name="description" maxlength="32" placeholder="文件最大为: $!restR.data.maxPatchSize">
+                            <input type="text" class="form-control" id="description" name="description" maxlength="32"
+                                   placeholder="文件最大为: $!restR.data.maxPatchSize">
                         </div>
 
                         <div class="form-group">
@@ -54,8 +59,8 @@
 
                         <p class="text-center"><font color="#dc143c" id="err_msg"></font></p>
 
-##                        <input type="hidden" name="appUid"  value="$restR.data.appInfo.uid"/>
-##                        <input type="hidden" name="versionName"  value="$!restR.data.versionInfo.versionName"/>
+                    ##                        <input type="hidden" name="appUid"  value="$restR.data.appInfo.uid"/>
+                    ##                        <input type="hidden" name="versionName"  value="$!restR.data.versionInfo.versionName"/>
                     </form>
                 </div>
 
@@ -85,7 +90,8 @@
         <!-- Top Menu Items -->
         <ul class="nav navbar-right top-nav">
             <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> $!restR.data.user.username <b class="caret"></b></a>
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i
+                        class="fa fa-user"></i> $!restR.data.user.username <b class="caret"></b></a>
                 <ul class="dropdown-menu">
                     <li>
                         <a href="#springUrl('/logout')"><i class="fa fa-fw fa-power-off"></i> Log Out</a>
@@ -97,7 +103,9 @@
         <div class="collapse navbar-collapse navbar-ex1-collapse">
             <ul class="nav navbar-nav side-nav">
                 <li class="active">
-                    <a href="javascript:;" data-toggle="collapse" data-target="#demo"><i class="fa fa-fw fa-arrows-v"></i> $!restR.data.appInfo.appname <i class="fa fa-fw fa-caret-down"></i></a>
+                    <a href="javascript:;" data-toggle="collapse" data-target="#demo"><i
+                            class="fa fa-fw fa-arrows-v"></i> $!restR.data.appInfo.appname <i
+                            class="fa fa-fw fa-caret-down"></i></a>
                     <ul id="demo" class="collapse">
                         <li>
                             <a href="#springUrl('/app/list')">全部应用</a>
@@ -113,16 +121,17 @@
 
 
                 <li>
-                    <a href="#springUrl('')/app?appUid=$!restR.data.appInfo.uid"><i class="fa fa-fw fa-file"></i> 应用管理</a>
+                    <a href="#springUrl('')/app?appUid=$!restR.data.appInfo.uid"><i class="fa fa-fw fa-file"></i>
+                        应用管理</a>
                 </li>
 
                 <li>
                     <a href="#springUrl('/app/list')"><i class="fa fa-fw fa-dashboard"></i> 应用列表</a>
                 </li>
 
-                <div class="bt_l">
-                    <a href="https://github.com/baidao/tinker-manager" target="_blank">Fork on Github</a>
-                </div>
+            ##                <div class="bt_l">
+            ##                    <a href="https://github.com/baidao/tinker-manager" target="_blank">Fork on Github</a>
+            ##                </div>
             </ul>
         </div>
         <!-- /.navbar-collapse -->
@@ -136,7 +145,8 @@
             <div class="row">
                 <div class="col-lg-12">
                     <h2 class="page-header">
-                        版本详情 <small></small>
+                        版本详情
+                        <small></small>
                     </h2>
 
                     <p>
@@ -145,7 +155,11 @@
                         <a href="#springUrl('')/app?appUid=$!restR.data.appInfo.uid">应用管理</a>
                     </p>
 
-                    <p><button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#exampleModal" data-whatever="@getbootstrap">上传补丁</button></p>
+                    <p>
+                        <button type="button" class="btn btn-info btn-sm" data-toggle="modal"
+                                data-target="#exampleModal" data-whatever="@getbootstrap">上传补丁
+                        </button>
+                    </p>
 
                 </div>
             </div>
@@ -161,7 +175,9 @@
                 </button>
                 <ul class="dropdown-menu" role="menu">
                     #foreach($versionInfo in $restR.data.versionList)
-                        <li><a href="#springUrl('')/app/version?appUid=$restR.data.appInfo.uid&versionName=$!versionInfo.versionName">$!versionInfo.versionName</a></li>
+                        <li><a href="#springUrl(
+                            '')/app/version?appUid=$restR.data.appInfo.uid&versionName=$!versionInfo.versionName">$!versionInfo.versionName</a>
+                        </li>
                     #end
                 </ul>
             </div>
@@ -184,26 +200,37 @@
                         <th>$!patchInfo.description</th>
                         <th>$!date.format('yyyy-MM-dd HH:mm:ss',$!patchInfo.createdAt)</th>
                         <th>
-                            #if($patchInfo.status == 0)
-                                未发布
-                            #elseif($patchInfo.status == 1)
-                                #if($patchInfo.publishType == 0)
-                                    已灰度发布
-                                #else
-                                    已全量发布
+
+                            #if($patchInfo.publishForClients > 0)
+                                指定设备发布
+                            #else
+                                #if($patchInfo.status == 0)
+                                    未发布
+                                #elseif($patchInfo.status == 1)
+                                    #if($patchInfo.publishType == 0)
+                                        已灰度发布
+                                    #else
+                                        已全量发布
+                                    #end
+                                #elseif($patchInfo.status == 2)
+                                    已停止
                                 #end
-                            #elseif($patchInfo.status == 2)
-                                已停止
                             #end
 
+
                         </th>
-                        <th><a href="#springUrl('')/patch?appUid=$restR.data.appInfo.uid&id=$!patchInfo.id">查看详情</a></th>
+                        <th><a href="#springUrl('')/patch?appUid=$restR.data.appInfo.uid&id=$!patchInfo.id">查看详情</a>
+                        </th>
                     </tr>
                 #end
             </table>
 
             #if($restR.data.patchInfoList.isEmpty())
                 <div class="text-center">请上传补丁!</div>
+            #else
+                <center>
+                    <ul class="pagination" id="pagination1"></ul>
+                </center>
             #end
         </div>
     </div>
@@ -213,22 +240,22 @@
 <script>
     //判断当前字符串是否以str结束
     if (typeof String.prototype.endsWith != 'function') {
-        String.prototype.endsWith = function (str){
+        String.prototype.endsWith = function (str) {
             return this.slice(-str.length) == str;
         };
     }
 
     //测试程序
-//    var sCompareStr = "abcdefg123.apk";//比较字符串
-//    var sBeCompareStr = ".apk";//被比较字符串
-//    if(sCompareStr.endsWith(sBeCompareStr)){//这里可以替换为startsWith
-//        console.log(sCompareStr+" 是以:"+sBeCompareStr+" 结束");
-//    }else{
-//        console.log(sCompareStr+" 不是以:"+sBeCompareStr+" 结束");
-//    }
+    //    var sCompareStr = "abcdefg123.apk";//比较字符串
+    //    var sBeCompareStr = ".apk";//被比较字符串
+    //    if(sCompareStr.endsWith(sBeCompareStr)){//这里可以替换为startsWith
+    //        console.log(sCompareStr+" 是以:"+sBeCompareStr+" 结束");
+    //    }else{
+    //        console.log(sCompareStr+" 不是以:"+sBeCompareStr+" 结束");
+    //    }
 
 
-    $(document).ready(function(){
+    $(document).ready(function () {
         $("#create_patch").click(function () {
             if ($("#description").val().length == 0) {
                 $("#err_msg").text('请输入补丁描述');
@@ -249,14 +276,30 @@
             var dialog = bootbox.dialog({
                 message: '<p><i class="fa fa-spin fa-spinner"></i> 正在处理...</p>'
             });
-            dialog.init(function(){
-                setTimeout(function(){
+            dialog.init(function () {
+                setTimeout(function () {
                     window.location.href = window.location.href;
                 }, 5000);
             });
             $("#create_patch_form").submit();
         });
     });
+</script>
+
+<script type="text/javascript">
+
+    $.jqPaginator('#pagination1', {
+        totalPages: $!restR.data.countPage,
+        visiblePages: 10,
+        currentPage:$!restR.data.curPage,
+        onPageChange: function (num, type) {
+            if (type == "change") {
+                window.location.href = "#springUrl(
+                    '')/app/version?appUid=$!restR.data.appInfo.uid&versionName=$!restR.data.versionInfo.versionName&curPage=" + num;
+            }
+        }
+    })
+    ;
 </script>
 </body>
 
