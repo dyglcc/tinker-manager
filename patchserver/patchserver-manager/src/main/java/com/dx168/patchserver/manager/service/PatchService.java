@@ -15,6 +15,7 @@ import com.dx168.patchserver.core.domain.PatchInfo;
 import com.dx168.patchserver.core.domain.VersionInfo;
 import com.dx168.patchserver.core.mapper.PatchInfoMapper;
 import com.dx168.patchserver.core.utils.BizException;
+
 import javax.mail.*;
 import javax.mail.internet.MimeMessage;
 import java.io.*;
@@ -62,27 +63,32 @@ public class PatchService {
     private ExecutorService executorService = Executors.newFixedThreadPool(20);
 
     @Deprecated
-    public List<PatchInfo> findByUidAndVersionName(String appUid,String versionName) {
-        return patchInfoMapper.findByUidAndVersionName(appUid,versionName);
+    public List<PatchInfo> findByUidAndVersionName(String appUid, String versionName) {
+        return patchInfoMapper.findByUidAndVersionName(appUid, versionName);
     }
-    public List<Object> findPageByUidAndVersionName(String appUid,String versionName,Integer curPage,Integer pageSize) {
-        return patchInfoMapper.findPageByUidAndVersionName(appUid,versionName,curPage,pageSize);
+
+    public List<Object> findPageByUidAndVersionName(String appUid, String versionName, Integer curPage, Integer pageSize) {
+        return patchInfoMapper.findPageByUidAndVersionName(appUid, versionName, curPage, pageSize);
     }
 
     public PatchInfo savePatch(AppInfo appInfo, VersionInfo versionInfo, String description, MultipartFile multipartFile) {
-        List<PatchInfo> patchInfoList = patchInfoMapper.findByUidAndVersionName(appInfo.getUid(),versionInfo.getVersionName());
+        List<PatchInfo> patchInfoList = patchInfoMapper.findByUidAndVersionName(appInfo.getUid(), versionInfo.getVersionName());
         int maxPatchVersion = getMaxPatchVersion(patchInfoList) + 1;
         String childPath = appInfo.getUid() + "/" + versionInfo.getVersionName() + "/" + maxPatchVersion + "/";
         PatchInfo patchInfo = new PatchInfo();
         try {
             String fileHash = DigestUtils.md5DigestAsHex(multipartFile.getBytes());
             File path = new File(new File(fileStoragePath), childPath);
-            File patchFile = new File(path,fileHash + "_patch.zip");
+            File patchFile = new File(path, fileHash + "_patch.zip");
 
             if (!path.exists() && !path.mkdirs()) {
                 throw new BizException("文件目录创建失败");
             }
             multipartFile.transferTo(patchFile);
+
+            // todo 本地开发文件没有访问权限----------
+            Runtime.getRuntime().exec("chmod -R 755 " + fileStoragePath);
+            // todo 本地开发文件没有访问权限----------
 
 //            zipFile.close();
             patchInfo.setUserId(appInfo.getUserId());
@@ -94,7 +100,7 @@ public class PatchService {
             patchInfo.setFileHash(fileHash);
             patchInfo.setDescription(description);
             patchInfo.setStoragePath(patchFile.getAbsolutePath());
-            patchInfo.setDownloadUrl(getDownloadUrl(patchStaticUrl,childPath + patchFile.getName()));
+            patchInfo.setDownloadUrl(getDownloadUrl(patchStaticUrl, childPath + patchFile.getName()));
             patchInfo.setCreatedAt(new Date());
             patchInfo.setUpdatedAt(new Date());
 
@@ -130,7 +136,7 @@ public class PatchService {
     }
 
     public PatchInfo findByIdAndAppUid(Integer id, String appUid) {
-        return patchInfoMapper.findByIdAndAppUid(id,appUid);
+        return patchInfoMapper.findByIdAndAppUid(id, appUid);
     }
 
     public void updateStatus(final PatchInfo patchInfo) {
@@ -141,7 +147,7 @@ public class PatchService {
             @Override
             public void run() {
                 try {
-                    notifyPatchStatusChanged(oldInfo,patchInfo);
+                    notifyPatchStatusChanged(oldInfo, patchInfo);
                 } catch (Throwable e) {
                     LOG.error("通知补丁状态变化失败: " + e.getMessage());
                 }
