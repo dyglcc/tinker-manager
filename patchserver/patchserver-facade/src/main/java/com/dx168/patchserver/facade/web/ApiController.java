@@ -140,7 +140,7 @@ public class ApiController {
             PatchInfo resultInfo = normalPatchInfo;
 
             if (resultInfoForClients != null) {
-                if (apiService.getClientsFromFixClientsTable(resultInfoForClients.getId(), deviceId)) {
+                if (apiService.checkIsClientFromClientsTable(resultInfoForClients.getId(), deviceId)) {
                     resultInfo = resultInfoForClients;
                 }
             }

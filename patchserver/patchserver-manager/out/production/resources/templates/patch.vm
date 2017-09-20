@@ -207,7 +207,7 @@
         </div>
         <!-- /.container-fluid -->
 
-        <div class="container-fluid">
+        <div class="container-fluid ">
             <table class="table table-bordered">
                 <tr>
                     <td>
@@ -221,7 +221,6 @@
                     <td>
                         补丁版本: $!restR.data.patchInfo.patchVersion
                     </td>
-
                     <td>
                         补丁UID: $!restR.data.patchInfo.uid
                     </td>
@@ -238,15 +237,21 @@
                         补丁MD5: <a href="$!restR.data.patchInfo.downloadUrl">$!restR.data.patchInfo.fileHash</a>
                     </td>
                 </tr>
+                <tr>
+                    <td>
+                        #if($restR.data.qrcodeImg)
+                            <img src="$!restR.data.qrcodeImg"/>
+                        #end
+                    </td>
+                    <td rowspan=$row_host1 style='vertical-align: middle;'>
+                    正式发布前建议您先进行本地测试请使用
+                    <a href="http://fir.im/patchtool" target="_blank">debug工具</a>
+                    <br>
+                    扫描左侧二维码,下载补丁进行本地调试
+                    <td/>
+                    <td></td>
+                </tr>
             </table>
-
-            #if($restR.data.qrcodeImg)
-                <img src="$!restR.data.qrcodeImg"/>
-
-                正式发布前建议您先进行本地测试
-                请使用 <a href="http://fir.im/patchtool" target="_blank">debug工具</a> 扫描左侧二维码,下载补丁进行本地调试
-            #end
-
             #if($!restR.data.patchInfo.publishForClients == 0)
 
                 #if($!restR.data.patchInfo.status == 0)

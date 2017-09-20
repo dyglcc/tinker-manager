@@ -2,6 +2,7 @@ package com.dx168.patchserver.core.mapper;
 
 import com.dx168.patchserver.core.domain.ClientsFix;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -19,7 +20,7 @@ public interface ClientFixMapper {
     List<Object> findClientsAndCount(Integer curPage, Integer pageSize, Integer patchId);
 
 
-    List<ClientsFix> findClient(Integer patchId, String clientId);
+    List<ClientsFix> findClient(@Param("patchId") Integer patchId, @Param("clientId") String clientId);
 
     void deleteById(Integer id);
 

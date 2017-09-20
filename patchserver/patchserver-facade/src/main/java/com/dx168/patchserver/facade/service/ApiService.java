@@ -262,7 +262,7 @@ public class ApiService {
         }
     }
 
-    @Scheduled(cron = "0 0/1 8-20 * * ?")
+    @Scheduled(cron = "0 0/1 * * * ?")
     public void syncPatch() {
         LOG.info("start sync： " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
         Collection<PatchCounter> patchCounterList = patchCounterCache.values();
@@ -275,13 +275,13 @@ public class ApiService {
         }
     }
 
-    public boolean getClientsFromFixClientsTable(Integer id, String deviceId) {
+    public boolean checkIsClientFromClientsTable(Integer id, String deviceId) {
 
         List<ClientsFix> list = clientFixMapper.findClient(id, deviceId);
         if (list == null || list.isEmpty()) {
-            return true;
-        } else {
             return false;
+        } else {
+            return true;
         }
     }
 

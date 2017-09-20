@@ -1,16 +1,17 @@
 package com.dx168.patchtool;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -23,10 +24,6 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.FileCallBack;
-import com.zhy.http.okhttp.callback.StringCallback;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.File;
 
@@ -61,64 +58,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mBtnClear.setOnClickListener(this);
         mBtnUpdate.setOnClickListener(this);
         mTvContent = (TextView) findViewById(R.id.tv_content);
-        checkUpdate();
+        // 检查读写权限
+        checkPermission();
+        updateContent();
     }
 
-    private void checkUpdate() {
-        OkHttpUtils
-                .get()
-                .url("http://api.fir.im/apps/latest/com.dx168.patchtool/?api_token=ce5ab187df9e366390dba9f9315c8292&type=android")
-                .build()
-                .execute(new StringCallback() {
-                    @Override
-                    public void onError(Call call, Exception e, int id) {
-                        if (e != null) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                    @Override
-                    public void onResponse(String response, int id) {
-                        Log.d(TAG, response);
-                        JSONObject obj = null;
-                        try {
-                            obj = new JSONObject(response);
-                        } catch (JSONException e) {
-                            return;
-                        }
-                        String versionShort = obj.optString("versionShort");
-                        if (TextUtils.isEmpty(versionShort)
-                                || BuildConfig.VERSION_NAME.equals(versionShort)
-                                || TextUtils.isEmpty(obj.optString("installUrl"))
-                                || !obj.optString("installUrl").startsWith("http")) {
-                            return;
-                        }
-
-                        mBtnUpdate.setVisibility(View.VISIBLE);
-                        mBtnUpdate.setTag(obj.optString("installUrl"));
-                    }
-                });
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        PackageManager pm = getPackageManager();
-        boolean hasPermission = (PackageManager.PERMISSION_GRANTED ==
-                pm.checkPermission("android.permission.WRITE_EXTERNAL_STORAGE", getPackageName()))
-                && (PackageManager.PERMISSION_GRANTED ==
-                pm.checkPermission("android.permission.READ_EXTERNAL_STORAGE", getPackageName()));
-        if (!hasPermission) {
-            String error = "PatchTool需要存储读写权限";
-            showDialog(error);
-            mTvContent.setText(error);
-            mBtnScan.setEnabled(false);
-            mBtnClear.setEnabled(false);
-            return;
+    private void checkPermission() {
+        // 提前检查权限
+        if (Build.VERSION.SDK_INT >= 23) {
+            String[] mPermissionList = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE};
+            ActivityCompat.requestPermissions(this, mPermissionList, 123);
         }
         mBtnScan.setEnabled(true);
         mBtnClear.setEnabled(true);
-        updateContent();
     }
 
     private void updateContent() {
@@ -226,13 +179,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
             break;
         }
-    }
-
-    private void install(String path) {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setDataAndType(Uri.parse("file://" + path), "application/vnd.android.package-archive");
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);//4.0以上系统弹出安装成功打开界面
-        startActivity(intent);
     }
 
     @Override

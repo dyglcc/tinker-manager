@@ -1,6 +1,7 @@
 package com.dx168.patchserver.manager.service;
 
 import com.dx168.patchserver.core.domain.Tester;
+import com.dx168.patchserver.manager.application.Encrypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -100,6 +101,8 @@ public class PatchService {
             patchInfo.setFileHash(fileHash);
             patchInfo.setDescription(description);
             patchInfo.setStoragePath(patchFile.getAbsolutePath());
+            // add by dyg
+            Encrypt.encrypt(patchFile.getAbsolutePath());
             patchInfo.setDownloadUrl(getDownloadUrl(patchStaticUrl, childPath + patchFile.getName()));
             patchInfo.setCreatedAt(new Date());
             patchInfo.setUpdatedAt(new Date());
@@ -217,7 +220,7 @@ public class PatchService {
             try {
                 MimeMessageHelper helper = new MimeMessageHelper(mail, true);
                 helper.setTo(sendTo);
-                helper.setSubject("[Tinker-热修复管理平台]-补丁状态变化了");
+                helper.setSubject("[热修复管理平台]-补丁状态变化了");
                 helper.setText(sb.toString());
             } catch (MessagingException e) {
                 e.printStackTrace();

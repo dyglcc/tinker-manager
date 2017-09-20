@@ -19,6 +19,7 @@ package com.dx168.patchsdk.sample.tinker;
 import android.content.Context;
 import android.os.Looper;
 import android.os.MessageQueue;
+import android.util.Log;
 
 import com.dx168.patchsdk.PatchManager;
 import com.tencent.tinker.lib.reporter.DefaultLoadReporter;
@@ -62,12 +63,14 @@ public class SampleLoadReporter extends DefaultLoadReporter {
                 break;
         }
         Looper.getMainLooper().myQueue().addIdleHandler(new MessageQueue.IdleHandler() {
-            @Override public boolean queueIdle() {
+            @Override
+            public boolean queueIdle() {
                 UpgradePatchRetry.getInstance(context).onPatchRetryLoad();
                 return false;
             }
         });
     }
+
     @Override
     public void onLoadException(Throwable e, int errorCode) {
         super.onLoadException(e, errorCode);
@@ -93,6 +96,7 @@ public class SampleLoadReporter extends DefaultLoadReporter {
 
     /**
      * try to recover patch oat file
+     *
      * @param file
      * @param fileType
      * @param isDirectory
