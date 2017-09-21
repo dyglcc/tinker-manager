@@ -12,8 +12,10 @@ import com.dx168.patchsdk.bean.AppInfo;
 import com.dx168.patchsdk.bean.PatchInfo;
 import com.dx168.patchsdk.utils.DebugUtils;
 import com.dx168.patchsdk.utils.DigestUtils;
+import com.dx168.patchsdk.utils.Encrypt;
 import com.dx168.patchsdk.utils.PatchUtils;
 import com.dx168.patchsdk.utils.SPUtils;
+import com.tencent.tinker.lib.tinker.TinkerInstaller;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -73,9 +75,19 @@ public final class PatchManager {
     private IPatchManager actualManager;
     private FullUpdateHandler fullUpdateHandler = new FullUpdateHandler();
 
-    public void init(Context context, String baseUrl, String appId, String appSecret, IPatchManager actualManager) {
+    public void init(Context context, String baseUrl, String appId, String appSecret, String deviceId, String channel) {
         this.context = context.getApplicationContext();
-        this.actualManager = actualManager;
+        this.actualManager = new IPatchManager() {
+            @Override
+            public void patch(Context context, String path) {
+                TinkerInstaller.onReceiveUpgradePatch(context, path);
+            }
+
+            @Override
+            public void cleanPatch(Context context) {
+                TinkerInstaller.cleanPatch(context);
+            }
+        };
         if (!PatchUtils.isMainProcess(context)) {
             return;
         }
@@ -84,7 +96,13 @@ public final class PatchManager {
         appInfo.setAppId(appId);
         appInfo.setAppSecret(appSecret);
         appInfo.setToken(DigestUtils.md5DigestAsHex(appId + "_" + appSecret));
-        appInfo.setDeviceId(PatchUtils.getDeviceId(context));
+        if (channel != null) {
+            appInfo.setChannel(channel);
+        }
+        if (deviceId == null) {
+            deviceId = PatchUtils.getDeviceId(context);
+        }
+        appInfo.setDeviceId(deviceId);
         appInfo.setPackageName(context.getPackageName());
         PackageManager packageManager = context.getPackageManager();
         try {
@@ -151,17 +169,6 @@ public final class PatchManager {
         appInfo.setTag(tag);
     }
 
-    public void setChannel(String channel) {
-        if (context == null) {
-            return;
-            //throw new NullPointerException("PatchManager must be init before using");
-        }
-        if (!PatchUtils.isMainProcess(context)) {
-            return;
-        }
-        appInfo.setChannel(channel);
-    }
-
     public void queryAndPatch() {
         if (context == null) {
             throw new NullPointerException("PatchManager must be init before using");
@@ -184,6 +191,8 @@ public final class PatchManager {
         }
         if (debugPatch != null) {
             SPUtils.put(context, KEY_STAGE, STAGE_PATCH);
+//            add by dyg
+            Encrypt.encrypt(debugPatch.getAbsolutePath());
             actualManager.patch(context, debugPatch.getAbsolutePath());
             for (Listener listener : listeners) {
                 listener.onQuerySuccess(debugPatch.getAbsolutePath());
@@ -194,7 +203,7 @@ public final class PatchManager {
                 .queryPatch(appInfo.getAppId(), appInfo.getToken(), appInfo.getTag(),
                         appInfo.getVersionName(), appInfo.getVersionCode(), appInfo.getPlatform(),
                         appInfo.getOsVersion(), appInfo.getModel(), appInfo.getChannel(),
-                        appInfo.getSdkVersion(), appInfo.getDeviceId(),true, new PatchServer.PatchServerCallback() {
+                        appInfo.getSdkVersion(), appInfo.getDeviceId(), true, new PatchServer.PatchServerCallback() {
                             @Override
                             public void onSuccess(int code, byte[] bytes) {
                                 if (bytes == null) {
@@ -225,7 +234,7 @@ public final class PatchManager {
                                     listener.onQuerySuccess(patchInfo.toString());
                                 }
                                 if (fullUpdateHandler != null && patchInfo.getFullUpdateInfo() != null) {
-                                    fullUpdateHandler.handlerFullUpdate(context,patchInfo.getFullUpdateInfo());
+                                    fullUpdateHandler.handlerFullUpdate(context, patchInfo.getFullUpdateInfo());
                                 }
                                 if (patchInfo.getData() == null) {
                                     File versionDir = new File(versionDirPath);
@@ -285,6 +294,10 @@ public final class PatchManager {
                     @Override
                     public void onSuccess(int code, byte[] bytes) {
                         String downloadPatchHash = patchInfo.getData().getHash();
+                        // decryptfile
+                        long t = System.currentTimeMillis();
+                        Encrypt.encrypt(bytes);
+                        Log.i(TAG, "decrypt time  " + (System.currentTimeMillis() - t));
                         if (!checkPatch(bytes, downloadPatchHash)) {
                             Log.e(TAG, "downloaded patch's hash is wrong: " + new String(bytes));
                             SPUtils.put(context, KEY_STAGE, STAGE_IDLE);
@@ -295,6 +308,7 @@ public final class PatchManager {
                         }
                         try {
                             PatchUtils.writeToDisk(bytes, newPatchPath);
+
                             for (Listener listener : listeners) {
                                 listener.onDownloadSuccess(newPatchPath);
                             }
@@ -390,6 +404,7 @@ public final class PatchManager {
         if (patchPath.endsWith("/" + JIAGU_PATCH_NAME)) {
             patchPath = patchPath.substring(0, patchPath.lastIndexOf("/")) + ".apk";
         }
+        Log.d(TAG, "patchPath -->" + patchPath);
         SPUtils.put(context, KEY_PATCHED_PATCH, patchPath);
         if (PatchUtils.isDebugPatch(patchPath)) {
             Intent intent = new Intent(DEBUG_ACTION_PATCH_RESULT);
@@ -463,7 +478,8 @@ public final class PatchManager {
             return;
         }
         SPUtils.put(context, KEY_LOADED_PATCH, patchPath);
-        if (PatchUtils.isDebugPatch(patchPath)) {
+        // different from patch tool is dir contain "patch"  or "com.dx168.patchtool"
+        if (PatchUtils.isDebugPatch(versionDirPath)) {
             Intent intent = new Intent(DEBUG_ACTION_LOAD_RESULT);
             intent.putExtra(KEY_PACKAGE_NAME, appInfo.getPackageName());
             intent.putExtra(KEY_RESULT, true);
