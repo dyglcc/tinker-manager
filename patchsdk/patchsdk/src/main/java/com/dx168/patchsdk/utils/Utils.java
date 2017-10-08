@@ -15,6 +15,7 @@
  */
 
 package com.dx168.patchsdk.utils;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -29,6 +30,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by zhangshaowen on 16/4/7.
@@ -183,6 +186,15 @@ public class Utils {
             }, filter);
         }
     }
+    private static Pattern pattern = Pattern.compile("tinker", Pattern.CASE_INSENSITIVE);
 
+    private static String replaceString(String sourc) {
+
+        if (sourc == null || sourc.equals("")) {
+            return sourc;
+        }
+        Matcher matcher = pattern.matcher(sourc);
+        return matcher.replaceAll("hotfix");
+    }
 
 }

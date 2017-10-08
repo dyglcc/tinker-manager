@@ -1,6 +1,10 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.dx168.tinker.jiagu'
-
+//repositories {
+//    flatDir {
+//        dirs 'libs' //this way we can find the .aar file in libs folder
+//    }
+//}
 buildscript {
     repositories {
         jcenter()
@@ -17,7 +21,14 @@ dependencies {
     compile 'com.tencent.tinker:tinker-android-anno:1.7.7'
     compile 'com.tencent.tinker:tinker-android-lib:1.7.7'
     compile 'com.android.support:multidex:1.0.1'
-    compile project(':patchsdk')
+//    compile project(':patchsdk')
+//    repositories{
+//        maven{
+//            url 'file:///Users/dongyuangui/GITHUB/tinkerguiyang/tinker/repo'
+//        }
+//    }
+
+//    compile project(':patchsdk')
 }
 
 def gitSha() {

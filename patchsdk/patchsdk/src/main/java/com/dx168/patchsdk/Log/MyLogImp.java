@@ -15,6 +15,7 @@
  */
 
 package com.dx168.patchsdk.Log;
+
 import android.util.Log;
 
 import com.tencent.tinker.lib.util.TinkerLog;
@@ -26,11 +27,11 @@ public class MyLogImp implements TinkerLog.TinkerLogImp {
     private static final String TAG = "Tinker.MyLogImp";
 
     public static final int LEVEL_VERBOSE = 0;
-    public static final int LEVEL_DEBUG   = 1;
-    public static final int LEVEL_INFO    = 2;
+    public static final int LEVEL_DEBUG = 1;
+    public static final int LEVEL_INFO = 2;
     public static final int LEVEL_WARNING = 3;
-    public static final int LEVEL_ERROR   = 4;
-    public static final int LEVEL_NONE    = 5;
+    public static final int LEVEL_ERROR = 4;
+    public static final int LEVEL_NONE = 5;
     private static int level = LEVEL_VERBOSE;
 
     public static int getLogLevel() {
@@ -46,7 +47,9 @@ public class MyLogImp implements TinkerLog.TinkerLogImp {
     @Override
     public void v(String s, String s1, Object... objects) {
         if (level <= LEVEL_VERBOSE) {
-            final String log = objects == null ? s1 : String.format(s1, objects);
+            String log = objects == null ? s1 : String.format(s1, objects);
+            s = TinkerLog.replaceString(s);
+            log = TinkerLog.replaceString(log);
             Log.v(s, log);
         }
     }
@@ -54,7 +57,9 @@ public class MyLogImp implements TinkerLog.TinkerLogImp {
     @Override
     public void i(String s, String s1, Object... objects) {
         if (level <= LEVEL_INFO) {
-            final String log = objects == null ? s1 : String.format(s1, objects);
+            String log = objects == null ? s1 : String.format(s1, objects);
+            s = TinkerLog.replaceString(s);
+            log = TinkerLog.replaceString(log);
             Log.i(s, log);
         }
     }
@@ -62,7 +67,9 @@ public class MyLogImp implements TinkerLog.TinkerLogImp {
     @Override
     public void w(String s, String s1, Object... objects) {
         if (level <= LEVEL_WARNING) {
-            final String log = objects == null ? s1 : String.format(s1, objects);
+            String log = objects == null ? s1 : String.format(s1, objects);
+            s = TinkerLog.replaceString(s);
+            log = TinkerLog.replaceString(log);
             Log.w(s, log);
         }
     }
@@ -70,7 +77,9 @@ public class MyLogImp implements TinkerLog.TinkerLogImp {
     @Override
     public void d(String s, String s1, Object... objects) {
         if (level <= LEVEL_DEBUG) {
-            final String log = objects == null ? s1 : String.format(s1, objects);
+            String log = objects == null ? s1 : String.format(s1, objects);
+            s = TinkerLog.replaceString(s);
+            log = TinkerLog.replaceString(log);
             Log.d(s, log);
         }
     }
@@ -78,7 +87,9 @@ public class MyLogImp implements TinkerLog.TinkerLogImp {
     @Override
     public void e(String s, String s1, Object... objects) {
         if (level <= LEVEL_ERROR) {
-            final String log = objects == null ? s1 : String.format(s1, objects);
+            String log = objects == null ? s1 : String.format(s1, objects);
+            s = TinkerLog.replaceString(s);
+            log = TinkerLog.replaceString(log);
             Log.e(s, log);
         }
     }
@@ -89,7 +100,10 @@ public class MyLogImp implements TinkerLog.TinkerLogImp {
         if (log == null) {
             log = "";
         }
+
         log = log + "  " + Log.getStackTraceString(throwable);
+        s = TinkerLog.replaceString(s);
+        log = TinkerLog.replaceString(log);
         Log.e(s, log);
     }
 }

@@ -1,7 +1,14 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: "com.jfrog.bintray"
+apply plugin: 'maven'
 
+apply from : 'fat-aar.gradle'
+//repositories {
+//    flatDir {
+//        dirs 'libs' //this way we can find the .aar file in libs folder
+//    }
+//}
 Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
 
@@ -40,7 +47,19 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    provided 'com.android.support:support-v4:24.0.0'
+    compile 'com.android.support:support-v4:24.0.0'
+    compile 'com.android.support:multidex:1.0.1'
+    repositories{
+        maven{
+            url 'file:///Users/dongyuangui/GITHUB/tinkerguiyang/tinker/repo'
+        }
+    }
+    embedded 'com.jinniu.hotfixand:tinker-android-lib:1.8.1@aar'
+    embedded 'com.jinniu.hotfixand:tinker-android-loader:1.8.1@aar'
+    embedded 'com.jinniu.hotfixand:tinker-commons:1.8.1'
+    embedded 'com.jinniu.hotfixand:aosp-dexutils:1.8.1'
+    embedded 'com.jinniu.hotfixand:bsdiff-util:1.8.1'
+    embedded group:'com.jinniu.hotfixand',name:'tinker-android-anno',version:'1.8.1'
 }
 
 def mavenDesc = 'Tinker patch manager'
@@ -84,6 +103,26 @@ task javadocJar(type: Jar) {
 artifacts {
     archives javadocJar
     archives sourcesJar
+}
+
+task hotfixSDK(type: Copy, dependsOn: [build]) {
+    group = "hotfix"
+
+    from("$buildDir/outputs/aar/") {
+        include "${project.getName()}-release.aar"
+    }
+    into('/Users/dongyuangui/GITHUB/HotFixDemo/app/libs')
+    rename { String fileName ->
+        fileName.replace("release", "1.8.1")
+    }
+}
+
+task hotfixJAR(type: Copy, dependsOn: [build]) {
+    group = "hotfix"
+
+    from("$buildDir/intermediates/bundles/debug/classes.jar")
+    into('/Users/dongyuangui/GITHUB/HotFixDemo/app/libs')
+    rename("classes.jar", "patchsdk-1.8.1.jar")
 }
 
 install {

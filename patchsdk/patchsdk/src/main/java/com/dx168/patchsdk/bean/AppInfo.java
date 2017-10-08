@@ -9,10 +9,15 @@ import com.dx168.patchsdk.BuildConfig;
  */
 public class AppInfo {
 
+    // app id
     private String appId;
+    // app secret
     private String appSecret;
+    // token
     private String token;
+    // tag
     private String tag;
+    // version
     private String versionName;
     private int versionCode;
     private String platform = "Android";
