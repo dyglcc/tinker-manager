@@ -311,7 +311,7 @@ FOR EACH ROW
 DELIMITER $$
 
 DROP PROCEDURE IF EXISTS proce_page_client_fix;
-
+$$
 CREATE PROCEDURE proce_page_client_fix(
   IN curPage  INT,
   IN pageSize INT,
@@ -344,13 +344,14 @@ CREATE PROCEDURE proce_page_client_fix(
     DEALLOCATE PREPARE s1;
     SELECT found_rows() AS count;
   END
-$$
-delimiter ;
+
 
     /*创建t_version_info表的分页存储过程，stored procedure proc_page_versions*/
 
     DELIMITER $$
+
 DROP PROCEDURE IF EXISTS proc_page_versions;
+$$
 CREATE PROCEDURE proc_page_versions(
   IN curPage  INT,
   IN pageSize INT,
@@ -386,14 +387,13 @@ CREATE PROCEDURE proc_page_versions(
     SELECT found_rows() AS count;
   END
 
-$$
-delimiter ;
 
     /*创建t_version_info表的分页存储过程，stored procedure proc_page_patch*/
 
     DELIMITER $$
 
 DROP PROCEDURE IF EXISTS proc_page_patch;
+$$
 CREATE PROCEDURE proc_page_patch(
   IN appUid      VARCHAR(64),
   IN versionName VARCHAR(64),
@@ -433,5 +433,3 @@ CREATE PROCEDURE proc_page_patch(
     DEALLOCATE PREPARE spatchs;
     SELECT found_rows() AS count;
   END
-$$
-delimiter ;
