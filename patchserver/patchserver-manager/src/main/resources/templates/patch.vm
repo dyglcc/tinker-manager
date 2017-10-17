@@ -268,17 +268,12 @@
                     <br/>
                     <br/>
                     <input type="button" id="client_publish" class="btn btn-info btn-sm" data-toggle="modal"
-                           data-target="#exampleModal" value="指定设备发布"/> &nbsp;&nbsp;&nbsp;
+                           data-target="#exampleModal" value="指定设备发布"/>
 
                     <input type="button" class="btn btn-info btn-sm" data-toggle="modal"
-                           data-target="#exampleModalFile" value="批量导入"/> &nbsp;&nbsp;&nbsp;
+                           data-target="#exampleModalFile" value="批量导入"/> &nbsp;&nbsp;
 
-                    <br/>
-                    <br/>
                     <input type="button" id="normal_publish" class="btn btn-info btn-sm" value="全量发布"/>
-
-                    <br/>
-                    <br/>
 
                     <input type="button" id="del_patch" class="btn btn-info btn-sm" value="删除补丁"/>
                 #elseif($!restR.data.patchInfo.status == 1)
@@ -324,9 +319,9 @@
             #elseif($!restR.data.patchInfo.publishForClients > 0)
                 <br/>
                 <input type="button" id="client_publish" class="btn btn-info btn-sm" data-toggle="modal"
-                       data-target="#exampleModal" value="指定设备发布"/> &nbsp;&nbsp;&nbsp;
+                       data-target="#exampleModal" value="指定设备发布"/>
                 <input type="button" class="btn btn-info btn-sm" data-toggle="modal"
-                       data-target="#exampleModalFile" value="批量导入"/> &nbsp;&nbsp;&nbsp;
+                       data-target="#exampleModalFile" value="批量导入"/> &nbsp;&nbsp;
                 <table class="table table-bordered" style="margin-top: 15px;">
                     <tr>
                         <th>设备ID</th>

@@ -399,7 +399,7 @@ public class ManagerController {
             restR.getData().put("versionList", appService.findAllVersion(appInfo));
             restR.getData().put("maxPatchSize", maxPatchSize);
             return new ModelAndView("version", "restR", restR);
-        }catch (Exception e){
+        } catch (Exception e) {
             restR.setCode(-1);
             restR.setMessage(e.getMessage());
             return new ModelAndView("version", "restR", restR);
