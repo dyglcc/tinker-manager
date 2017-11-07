@@ -12,6 +12,7 @@ import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -61,6 +62,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // 检查读写权限
         checkPermission();
         updateContent();
+
+        // testcode
+        findViewById(R.id.tv_content).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                HttpUtils.request("https://www.baidu.com", null, new HttpCallback() {
+                    @Override
+                    public void onSuccess(int code, byte[] bytes) {
+                        String string = new String(bytes);
+                        Log.e("https",string );
+                        System.out.println(string);
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+
+                    }
+                });
+            }
+        });
     }
 
     private void checkPermission() {

@@ -1,16 +1,16 @@
 package com.dx168.patchsdk.utils;
 
-import android.content.Context;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.regex.Pattern;
 
 /**
@@ -30,17 +30,22 @@ public class DownloadUtil {
             @Override
             public void run() {
                 try {
-                    HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+                    HttpURLConnection conn = HttpUtils.getCon(url);
+//                    HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+                    if (conn == null) {
+                        Log.e("Httputil", "error when create connection " + url);
+                        return;
+                    }
                     conn.setRequestMethod("GET");
                     conn.setConnectTimeout(30 * 1000);
                     long filesize = conn.getContentLength();
                     int code = conn.getResponseCode();
-                    if (code == 200 &&filesize > 0) {
+                    if (code == 200 && filesize > 0) {
                         File downloadDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath());
                         if (!downloadDir.exists()) {
                             downloadDir.mkdir();
                         }
-                        String filePath = new File(downloadDir,getFileNameFromUrl(url) + ".tmp").getAbsolutePath();
+                        String filePath = new File(downloadDir, getFileNameFromUrl(url) + ".tmp").getAbsolutePath();
                         File file = new File(filePath);
                         InputStream in = conn.getInputStream();
                         FileOutputStream out = new FileOutputStream(file);
@@ -64,11 +69,12 @@ public class DownloadUtil {
                         downlaodState = DOWNLOADING;
                         if (file.length() == filesize) {
                             //下载完成
-                            String finalpath = new File(downloadDir,getFileNameFromUrl(url)).getAbsolutePath();
+                            String finalpath = new File(downloadDir, getFileNameFromUrl(url)).getAbsolutePath();
                             File finalFile = new File(finalpath);
-                            if(file.renameTo(finalFile)){
+                            if (file.renameTo(finalFile)) {
                                 sendMessage(handler, DOWNLOAD_FINISH, finalpath);
-                            };
+                            }
+                            ;
                             downlaodState = DOWNLOAD_FINISH;
                         } else {//下载取消
                             sendMessage(handler, DOWNLOAD_CANCEL, "" + Thread.currentThread().getId());

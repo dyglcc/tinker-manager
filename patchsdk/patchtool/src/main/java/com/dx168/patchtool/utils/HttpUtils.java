@@ -1,5 +1,8 @@
 package com.dx168.patchtool.utils;
 
+import android.text.TextUtils;
+import android.util.Log;
+
 import com.dx168.patchtool.HttpCallback;
 
 import java.io.BufferedWriter;
@@ -14,6 +17,11 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 /**
  * Created by jianjun.lin on 2016/11/30.
@@ -40,7 +48,12 @@ public class HttpUtils {
                 OutputStream outputStream = null;
                 InputStream inputStream = null;
                 try {
-                    HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+                    HttpURLConnection conn = HttpUtils.getCon(url);
+//                    HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+                    if (conn == null) {
+                        Log.e("Httputil", "error when create connection " + url);
+                        return;
+                    }
                     conn.setRequestMethod("GET");
                     conn.setConnectTimeout(30 * 1000);
                     conn.setDoInput(true);
@@ -106,5 +119,57 @@ public class HttpUtils {
         });
 
     }
+
+
+    // add https
+    private static void trustAllHosts(HttpsURLConnection conn) {
+        // Create a trust manager that does not validate certificate chains
+        TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
+            @Override
+            public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) throws java.security.cert.CertificateException {
+            }
+
+            @Override
+            public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) throws java.security.cert.CertificateException {
+            }
+
+            public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                return null;
+            }
+        }};
+
+        // Install the all-trusting trust manager
+        try {
+            SSLContext sc = SSLContext.getInstance("TLS");
+            sc.init(null, trustAllCerts, null);
+            conn.setSSLSocketFactory(sc.getSocketFactory());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static HttpURLConnection getCon(String url) {
+        if (TextUtils.isEmpty(url)) {
+            return null;
+        }
+        if (url.startsWith("https:")) {
+            try {
+                HttpsURLConnection conn = (HttpsURLConnection) new URL(url).openConnection();
+                trustAllHosts(conn);
+                return conn;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else if (url.startsWith("http:")) {
+            try {
+                return (HttpURLConnection) new URL(url).openConnection();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+
+    }
+
 
 }
